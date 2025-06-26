@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Editar Cliente{% else %}Nuevo Cliente{% endif %}{% endblock %}
+
+{% block content %}
+<h1>{% if object %}Editar Cliente{% else %}Nuevo Cliente{% endif %}</h1>
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        {{ form.cliente.label_tag }}
+        {{ form.cliente }}
+    </div>
+    <div class="mb-3">
+        {{ form.cantidad_botellones.label_tag }}
+        {{ form.cantidad_botellones }}
+    </div>
+    {% if form.notas %}  <!-- Solo si añadiste el campo -->
+    <div class="mb-3">
+        {{ form.notas.label_tag }}
+        {{ form.notas }}
+    </div>
+    {% endif %}
+    <button type="submit" class="btn btn-primary">Guardar</button>
+</form>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% load static %}
+<header class="main-header">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'clientes:dashboard' %}"> <!-- Cambiado a lista_clientes -->
+                <img src="{% static 'images/logo.png' %}" alt="Water Delivery Logo" class="header-logo" width="40">
+                Water Delivery
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                {% include 'partials/navegation.html' %}  <!-- Asegúrate de que la ruta sea correcta -->
+            </div>
+        </div>
+    </nav>
+</header>

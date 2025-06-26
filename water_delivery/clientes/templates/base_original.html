@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery de Agua - {% block title %}{% endblock %}</title>
+    <!-- Carga archivos estáticos si los tienes -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'clientes/css/styles.css' %}">
+</head>
+<body>
+    {% include 'partials/header.html' %}
+    {% include 'partials/navegation.html' %}
+
+    <main class="container">
+        {% include 'partials/messages.html' %}  <!-- Para mensajes de Django -->
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'partials/footer.html' %}
+</body>
+</html>
