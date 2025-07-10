@@ -1,12 +1,523 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Nuevo Despacho{% endblock %}
+{% block title %}Dashboard de Despachos{% endblock %}
 
 {% block content %}
-<h1>Registrar Despacho</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Guardar Despacho</button>
-</form>
+<div class="min-h-screen bg-gray-50 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header del Dashboard -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
+                <!-- Información del día -->
+                <div class="flex items-center space-x-4">
+                    <div class="bg-agua-blue p-3 rounded-full">
+                        <i class="fas fa-truck text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Dashboard de Despachos</h1>
+                        <div class="flex items-center space-x-4 text-sm text-gray-600">
+                            <span id="current-date" class="flex items-center">
+                                <i class="fas fa-calendar mr-2 text-agua-blue"></i>
+                                <span id="date-display">Cargando...</span>
+                            </span>
+                            <span id="current-time" class="flex items-center">
+                                <i class="fas fa-clock mr-2 text-agua-blue"></i>
+                                <span id="time-display">Cargando...</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Estadísticas del día -->
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="bg-green-50 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-green-600" id="total-despachos">0</div>
+                        <div class="text-xs text-green-700">Despachos Hoy</div>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-blue-600" id="total-botellones">0</div>
+                        <div class="text-xs text-blue-700">Botellones</div>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-purple-600" id="total-clientes">0</div>
+                        <div class="text-xs text-purple-700">Clientes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-6">
+            
+            <!-- Panel de Nuevo Despacho -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-lg p-6 sticky top-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold text-gray-900 flex items-center">
+                            <i class="fas fa-plus-circle mr-2 text-green-500"></i>
+                            Nuevo Despacho
+                        </h2>
+                        <button onclick="toggleClienteForm()" 
+                                class="text-sm bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition-colors">
+                            <i class="fas fa-user-plus mr-1"></i>
+                            Nuevo Cliente
+                        </button>
+                    </div>
+                    
+                    <!-- Formulario de Despacho -->
+                    <form id="despacho-form" class="space-y-4">
+                        {% csrf_token %}
+                        
+                        <!-- Selector de Cliente -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-user mr-2 text-green-500"></i>
+                                Cliente
+                            </label>
+                            <select id="cliente-select" 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                                    required>
+                                <option value="">Seleccionar cliente...</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Cantidad de Botellones -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-wine-bottle mr-2 text-green-500"></i>
+                                Cantidad de Botellones
+                            </label>
+                            <div class="flex items-center space-x-2">
+                                <button type="button" onclick="adjustQuantity(-1)" 
+                                        class="bg-gray-200 hover:bg-gray-300 text-gray-700 w-10 h-10 rounded-lg flex items-center justify-center transition-colors">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="number" 
+                                       id="cantidad-botellones" 
+                                       min="1" 
+                                       value="1"
+                                       class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-center font-bold text-lg"
+                                       required>
+                                <button type="button" onclick="adjustQuantity(1)" 
+                                        class="bg-gray-200 hover:bg-gray-300 text-gray-700 w-10 h-10 rounded-lg flex items-center justify-center transition-colors">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Notas -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-sticky-note mr-2 text-green-500"></i>
+                                Notas (Opcional)
+                            </label>
+                            <textarea id="notas" 
+                                      rows="3"
+                                      placeholder="Agregar notas del despacho..."
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 resize-none"></textarea>
+                        </div>
+                        
+                        <!-- Botón de Guardar -->
+                        <button type="submit" 
+                                class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4 rounded-lg font-medium hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                            <i class="fas fa-save mr-2"></i>
+                            <span id="btn-text">Registrar Despacho</span>
+                        </button>
+                    </form>
+                    
+                    <!-- Formulario de Nuevo Cliente -->
+                    <div id="nuevo-cliente-form" class="hidden mt-6 p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+                        <h3 class="text-lg font-medium text-blue-900 mb-4 flex items-center">
+                            <i class="fas fa-user-plus mr-2"></i>
+                            Agregar Nuevo Cliente
+                        </h3>
+                        <form id="cliente-form" class="space-y-3">
+                            {% csrf_token %}
+                            <div>
+                                <input type="text" 
+                                       id="cliente-nombre" 
+                                       placeholder="Nombre del cliente"
+                                       class="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       required>
+                            </div>
+                            <div>
+                                <input type="text" 
+                                       id="cliente-apellido" 
+                                       placeholder="Apellido del cliente"
+                                       class="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       required>
+                            </div>
+                            <div>
+                                <input type="text" 
+                                       id="cliente-telefono" 
+                                       placeholder="Teléfono"
+                                       class="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <textarea id="cliente-direccion" 
+                                          rows="2"
+                                          placeholder="Dirección"
+                                          class="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                          required></textarea>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button type="submit" 
+                                        class="flex-1 bg-blue-500 text-white py-2 px-3 rounded-lg hover:bg-blue-600 transition-colors">
+                                    <i class="fas fa-check mr-1"></i>
+                                    Guardar
+                                </button>
+                                <button type="button" 
+                                        onclick="toggleClienteForm()" 
+                                        class="flex-1 bg-gray-500 text-white py-2 px-3 rounded-lg hover:bg-gray-600 transition-colors">
+                                    <i class="fas fa-times mr-1"></i>
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Lista de Despachos del Día -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold text-gray-900 flex items-center">
+                            <i class="fas fa-list mr-2 text-agua-blue"></i>
+                            Despachos de Hoy
+                        </h2>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="refreshDespachos()" 
+                                    class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Lista de Despachos -->
+                    <div id="despachos-list" class="space-y-3">
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-spinner fa-spin text-4xl mb-4"></i>
+                            <p>Cargando despachos...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript conectado a PostgreSQL -->
+<script>
+// URLs de las APIs
+const API_URLS = {
+    clientes: "{% url 'clientes:api_clientes' %}",
+    despachos: "{% url 'clientes:api_despachos_hoy' %}",
+    crearDespacho: "{% url 'clientes:api_crear_despacho' %}",
+    crearCliente: "{% url 'clientes:api_crear_cliente' %}",
+    eliminarDespacho: "/clientes/api/eliminar-despacho/",
+    marcarEntregado: "/clientes/api/marcar-entregado/"
+};
+
+// Token CSRF
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+    
+    loadClientes();
+    loadDespachos();
+    
+    document.getElementById('despacho-form').addEventListener('submit', handleDespachoSubmit);
+    document.getElementById('cliente-form').addEventListener('submit', handleClienteSubmit);
+});
+
+function updateDateTime() {
+    const now = new Date();
+    
+    const dateOptions = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    };
+    const dateStr = now.toLocaleDateString('es-ES', dateOptions);
+    document.getElementById('date-display').textContent = dateStr;
+    
+    const timeStr = now.toLocaleTimeString('es-ES', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit' 
+    });
+    document.getElementById('time-display').textContent = timeStr;
+}
+
+function adjustQuantity(change) {
+    const input = document.getElementById('cantidad-botellones');
+    const currentValue = parseInt(input.value) || 1;
+    const newValue = Math.max(1, currentValue + change);
+    input.value = newValue;
+}
+
+function toggleClienteForm() {
+    const form = document.getElementById('nuevo-cliente-form');
+    form.classList.toggle('hidden');
+    
+    if (!form.classList.contains('hidden')) {
+        document.getElementById('cliente-nombre').focus();
+    }
+}
+
+async function loadClientes() {
+    try {
+        const response = await fetch(API_URLS.clientes);
+        const data = await response.json();
+        
+        const select = document.getElementById('cliente-select');
+        select.innerHTML = '<option value="">Seleccionar cliente...</option>';
+        
+        data.clientes.forEach(cliente => {
+            const option = document.createElement('option');
+            option.value = cliente.id;
+            option.textContent = `${cliente.nombre} - ${cliente.direccion}`;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error cargando clientes:', error);
+        showMessage('Error al cargar clientes', 'error');
+    }
+}
+
+async function loadDespachos() {
+    try {
+        const response = await fetch(API_URLS.despachos);
+        const data = await response.json();
+        
+        const container = document.getElementById('despachos-list');
+        
+        if (data.despachos.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-truck text-4xl mb-4"></i>
+                    <p>No hay despachos registrados hoy</p>
+                    <p class="text-sm">Comienza agregando tu primer despacho</p>
+                </div>
+            `;
+            updateStats([]);
+            return;
+        }
+        
+        container.innerHTML = data.despachos.map(despacho => `
+            <div class="bg-gray-50 rounded-lg p-4 border-l-4 ${despacho.entregado ? 'border-green-500' : 'border-yellow-500'} hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <h3 class="font-semibold text-gray-900">${despacho.cliente}</h3>
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                                ${despacho.cantidad} botellones
+                            </span>
+                            <span class="text-sm text-gray-500">${despacho.hora}</span>
+                            ${despacho.entregado ? 
+                                '<span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Entregado</span>' : 
+                                '<span class="bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">Pendiente</span>'
+                            }
+                        </div>
+                        <p class="text-sm text-gray-600 mb-1">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            ${despacho.direccion}
+                        </p>
+                        ${despacho.notas ? `<p class="text-sm text-gray-500 italic">${despacho.notas}</p>` : ''}
+                    </div>
+                    <div class="flex space-x-2">
+                        ${!despacho.entregado ? `
+                            <button onclick="marcarEntregado(${despacho.id})" 
+                                    class="text-green-500 hover:text-green-700 p-1" title="Marcar como entregado">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        ` : ''}
+                        <button onclick="deleteDespacho(${despacho.id})" 
+                                class="text-red-500 hover:text-red-700 p-1" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        updateStats(data.despachos);
+    } catch (error) {
+        console.error('Error cargando despachos:', error);
+        showMessage('Error al cargar despachos', 'error');
+    }
+}
+
+function updateStats(despachos) {
+    document.getElementById('total-despachos').textContent = despachos.length;
+    document.getElementById('total-botellones').textContent = despachos.reduce((sum, d) => sum + d.cantidad, 0);
+    document.getElementById('total-clientes').textContent = new Set(despachos.map(d => d.cliente)).size;
+}
+
+async function handleDespachoSubmit(e) {
+    e.preventDefault();
+    
+    const clienteId = document.getElementById('cliente-select').value;
+    const cantidad = document.getElementById('cantidad-botellones').value;
+    const notas = document.getElementById('notas').value;
+    
+    if (!clienteId) {
+        showMessage('Por favor selecciona un cliente', 'error');
+        return;
+    }
+    
+    const btnText = document.getElementById('btn-text');
+    btnText.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Guardando...';
+    
+    try {
+        const response = await fetch(API_URLS.crearDespacho, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                cliente_id: clienteId,
+                cantidad: cantidad,
+                notas: notas
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showMessage('Despacho registrado exitosamente', 'success');
+            document.getElementById('despacho-form').reset();
+            document.getElementById('cantidad-botellones').value = 1;
+            loadDespachos();
+        } else {
+            showMessage(data.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showMessage('Error al registrar despacho', 'error');
+    } finally {
+        btnText.innerHTML = '<i class="fas fa-save mr-2"></i>Registrar Despacho';
+    }
+}
+
+async function handleClienteSubmit(e) {
+    e.preventDefault();
+    
+    const nombre = document.getElementById('cliente-nombre').value;
+    const apellido = document.getElementById('cliente-apellido').value;
+    const telefono = document.getElementById('cliente-telefono').value;
+    const direccion = document.getElementById('cliente-direccion').value;
+    
+    try {
+        const response = await fetch(API_URLS.crearCliente, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                nombre: nombre,
+                apellido: apellido,
+                telefono: telefono,
+                direccion: direccion
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showMessage('Cliente agregado exitosamente', 'success');
+            document.getElementById('cliente-form').reset();
+            toggleClienteForm();
+            loadClientes();
+        } else {
+            showMessage(data.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showMessage('Error al agregar cliente', 'error');
+    }
+}
+
+async function deleteDespacho(id) {
+    if (!confirm('¿Estás seguro de eliminar este despacho?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(API_URLS.eliminarDespacho + id + '/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showMessage('Despacho eliminado exitosamente', 'success');
+            loadDespachos();
+        } else {
+            showMessage(data.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showMessage('Error al eliminar despacho', 'error');
+    }
+}
+
+async function marcarEntregado(id) {
+    try {
+        const response = await fetch(API_URLS.marcarEntregado + id + '/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showMessage('Despacho marcado como entregado', 'success');
+            loadDespachos();
+        } else {
+            showMessage(data.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showMessage('Error al marcar como entregado', 'error');
+    }
+}
+
+function refreshDespachos() {
+    loadDespachos();
+    loadClientes();
+}
+
+function showMessage(message, type) {
+    // Crear notificación toast
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 ${
+        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+    }`;
+    toast.innerHTML = `
+        <div class="flex items-center space-x-2">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+</script>
 {% endblock %}

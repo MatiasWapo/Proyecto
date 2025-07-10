@@ -1,8 +1,72 @@
 {% load static %}
-<footer class="main-footer border-top">
-    <div class="container text-center py-3">
-        <p class="mb-0 text-muted">
-            &copy; {% now "Y" %} Water Delivery - Todos los derechos reservados
-        </p>
+<footer class="bg-gray-800 text-white mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Contenido principal del footer -->
+        <div class="py-8">
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Información de la empresa -->
+                <div class="text-center md:text-left">
+                    <div class="flex items-center justify-center md:justify-start space-x-2 mb-4">
+                        <i class="fas fa-tint text-agua-light text-2xl"></i>
+                        <span class="text-xl font-bold">Water Delivery</span>
+                    </div>
+                    <p class="text-gray-300 text-sm">
+                        Tu proveedor confiable de agua pura. 
+                        Entregamos calidad y frescura directamente a tu puerta.
+                    </p>
+                </div>
+                
+                <!-- Enlaces rápidos -->
+                <div class="text-center">
+                    <h3 class="text-lg font-semibold mb-4 text-agua-light">Enlaces Rápidos</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li>
+                            <a href="#" class="text-gray-300 hover:text-agua-light transition-colors duration-200">
+                                Política de Privacidad
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="text-gray-300 hover:text-agua-light transition-colors duration-200">
+                                Términos de Servicio
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="text-gray-300 hover:text-agua-light transition-colors duration-200">
+                                Soporte Técnico
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Información de contacto -->
+                <div class="text-center md:text-right">
+                    <h3 class="text-lg font-semibold mb-4 text-agua-light">Contacto</h3>
+                    <div class="space-y-2 text-sm text-gray-300">
+                        <div class="flex items-center justify-center md:justify-end space-x-2">
+                            <i class="fas fa-phone text-agua-light"></i>
+                            <span>+1 (555) 123-4567</span>
+                        </div>
+                        <div class="flex items-center justify-center md:justify-end space-x-2">
+                            <i class="fas fa-envelope text-agua-light"></i>
+                            <span>info@waterdelivery.com</span>
+                        </div>
+                        <div class="flex items-center justify-center md:justify-end space-x-2">
+                            <i class="fas fa-clock text-agua-light"></i>
+                            <span>7:00 AM - 10:00 PM</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Línea divisoria -->
+        <div class="border-t border-gray-700"></div>
+        
+        <!-- Copyright -->
+        <div class="py-4 text-center">
+            <p class="text-sm text-gray-400">
+                &copy; {% now "Y" %} Water Delivery - Todos los derechos reservados
+            </p>
+        </div>
     </div>
 </footer>

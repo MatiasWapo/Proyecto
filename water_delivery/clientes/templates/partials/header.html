@@ -1,17 +1,86 @@
 {% load static %}
-<header class="main-header">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'clientes:dashboard' %}"> <!-- Cambiado a lista_clientes -->
-                <img src="{% static 'images/logo.png' %}" alt="Water Delivery Logo" class="header-logo" width="40">
-                Water Delivery
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="mainNav">
-                {% include 'partials/navegation.html' %}  <!-- Asegúrate de que la ruta sea correcta -->
+<header class="bg-gradient-to-r from-agua-blue to-agua-light shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+            <!-- Logo y marca -->
+            <div class="flex items-center">
+                <a href="{% url 'clientes:dashboard' %}" class="flex items-center space-x-3 hover:opacity-90 transition-opacity duration-200">
+                    <!-- Logo -->
+                    <div class="bg-white p-2 rounded-full shadow-md">
+                        <img src="{% static 'images/logo.png' %}" 
+                             alt="Water Delivery Logo" 
+                             class="w-8 h-8 object-contain"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <!-- Fallback icon si no carga la imagen -->
+                        <i class="fas fa-tint text-agua-blue text-xl hidden"></i>
+                    </div>
+                    
+                    <!-- Texto de la marca -->
+                    <div class="text-white">
+                        <h1 class="text-xl md:text-2xl font-bold">Water Delivery</h1>
+                        <p class="text-xs md:text-sm text-blue-100 hidden sm:block">Sistema de Gestión</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Información adicional del header (Desktop) -->
+            <div class="hidden lg:flex items-center space-x-6 text-white">
+                <!-- Horario de atención -->
+                <div class="flex items-center space-x-2 bg-white bg-opacity-20 px-3 py-2 rounded-lg">
+                    <i class="fas fa-clock text-blue-100"></i>
+                    <div class="text-sm">
+                        <p class="font-medium">Horario</p>
+                        <p class="text-blue-100">7:00 AM - 10:00 PM</p>
+                    </div>
+                </div>
+                
+                <!-- Teléfono de contacto -->
+                <div class="flex items-center space-x-2 bg-white bg-opacity-20 px-3 py-2 rounded-lg">
+                    <i class="fas fa-phone text-blue-100"></i>
+                    <div class="text-sm">
+                        <p class="font-medium">Contacto</p>
+                        <p class="text-blue-100">+1 (555) 123-4567</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Indicador de estado del sistema (opcional) -->
+            <div class="hidden md:flex items-center space-x-2 text-white">
+                <div class="flex items-center space-x-2 bg-green-500 bg-opacity-80 px-3 py-1 rounded-full">
+                    <div class="w-2 h-2 bg-green-200 rounded-full animate-pulse"></div>
+                    <span class="text-xs font-medium">Sistema Activo</span>
+                </div>
             </div>
         </div>
-    </nav>
+    </div>
+    
+    <!-- Barra decorativa -->
+    <div class="h-1 bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500"></div>
 </header>
+
+<!-- Estilos adicionales -->
+<style>
+    /* Animación para el logo */
+    .header-logo-container:hover img {
+        transform: scale(1.05);
+        transition: transform 0.2s ease-in-out;
+    }
+    
+    /* Efecto de ondas de agua */
+    .water-wave {
+        background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+        animation: wave 3s infinite;
+    }
+    
+    @keyframes wave {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+        .header-info {
+            display: none;
+        }
+    }
+</style>

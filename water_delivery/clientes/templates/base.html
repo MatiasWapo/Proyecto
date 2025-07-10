@@ -8,6 +8,9 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Font Awesome (mantenemos tus iconos) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <!-- Configuración personalizada de Tailwind -->
     <script>
         tailwind.config = {
@@ -29,13 +32,16 @@
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col">
     {% include 'partials/header.html' %}
-    {% include 'partials/navegation.html' %}
     
-    <main class="flex-1 container mx-auto px-4 py-8">
-        {% include 'partials/messages.html' %}
+    {% block navbar %}
+        {% include 'partials/navegation.html' %}
+    {% endblock %}
+
+    <main class="container mx-auto px-4 py-6 flex-1 max-w-7xl">
+        {% include 'partials/messages.html' %}  <!-- Para mensajes de Django -->
         {% block content %}{% endblock %}
     </main>
-    
+
     {% include 'partials/footer.html' %}
 </body>
 </html>

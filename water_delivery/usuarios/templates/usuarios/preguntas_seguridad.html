@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
+        <div class="text-center mb-6">
+            <h2 class="text-3xl font-bold text-gray-900">Verificación de Seguridad</h2>
+            <p class="mt-2 text-sm text-gray-600">Estás restableciendo la contraseña para: <span class="font-semibold">{{ usuario.username }}</span></p>
+        </div>
+        
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Pregunta 1 -->
+            <div>
+                <label class="block text-lg font-medium text-gray-700 mb-2">
+                    {{ usuario.get_pregunta_1_display }}
+                </label>
+                <input type="text" name="respuesta_1" required
+                       class="block w-full px-3 py-2 border {% if form.respuesta_1.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                       placeholder="Tu respuesta...">
+                {% if form.respuesta_1.errors %}
+                    <p class="mt-1 text-sm text-red-600">Respuesta incorrecta</p>
+                {% endif %}
+            </div>
+
+            <!-- Pregunta 2 -->
+            <div>
+                <label class="block text-lg font-medium text-gray-700 mb-2">
+                    {{ usuario.get_pregunta_2_display }}
+                </label>
+                <input type="text" name="respuesta_2" required
+                       class="block w-full px-3 py-2 border {% if form.respuesta_2.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                       placeholder="Tu respuesta...">
+                {% if form.respuesta_2.errors %}
+                    <p class="mt-1 text-sm text-red-600">Respuesta incorrecta</p>
+                {% endif %}
+            </div>
+
+            <!-- Nueva contraseña -->
+            <div>
+                <label class="block text-lg font-medium text-gray-700 mb-2">
+                    Nueva Contraseña
+                </label>
+                <input type="password" name="nueva_password" required minlength="8"
+                       class="block w-full px-3 py-2 border {% if form.nueva_password.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                       placeholder="Mínimo 8 caracteres">
+                {% if form.nueva_password.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.nueva_password.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <button type="submit" 
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Restablecer Contraseña
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

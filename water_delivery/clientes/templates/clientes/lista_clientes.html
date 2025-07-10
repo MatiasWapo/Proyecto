@@ -4,40 +4,732 @@
 {% block title %}Lista de Clientes{% endblock %}
 
 {% block content %}
-<h1>Clientes Registrados</h1>
-    <a href="{% url 'clientes:nuevo_cliente' %}" class="btn btn-primary">Nuevo Cliente</a>
-    <a href="{% url 'clientes:nuevo_despacho' %}" class="btn btn-secondary">Registrar Despacho</a>
+<div class="container-fluid py-4">
+    
+    <!-- Contador de clientes compacto -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="stats-compact">
+                <div class="d-flex align-items-center justify-content-center">
+                    <div class="counter-badge">
+                        <i class="fas fa-users me-2"></i>
+                        <span class="fw-bold">{{ clientes.count }}</span> Cliente{{ clientes.count|pluralize }} Activo{{ clientes.count|pluralize }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Teléfono</th>
-            <th>Dirección</th>
-            <th>Deuda (botellones)</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for cliente in clientes %}
-        <tr>
-            <td>{{ cliente.nombre }} {{ cliente.apellido }}</td>
-            <td>{{ cliente.telefono }}</td>
-            <td>{{ cliente.direccion }}</td>
-            <td>{{ cliente.debe_total }}</td>
-            <td>
-                <a href="{% url 'editar_cliente' cliente.pk %}" class="btn btn-sm btn-warning">Editar</a>
-                <!-- Botón para desactivar (si activo=False, ocultar en lista) -->
-                {% if cliente.activo %}
-                <form action="{% url 'editar_cliente' cliente.pk %}" method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <input type="hidden" name="activo" value="false">
-                    <button type="submit" class="btn btn-sm btn-danger">Desactivar</button>
+    <!-- Búsqueda optimizada y compacta -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="search-container">
+                <div class="search-header mb-3">
+                    <h4 class="search-title">
+                        <i class="fas fa-search me-2"></i>
+                        Buscar Clientes
+                    </h4>
+                </div>
+                <form method="get" class="search-form-optimized">
+                    <div class="search-input-group">
+                        <div class="search-input-wrapper">
+                            <i class="fas fa-user-search search-input-icon"></i>
+                            <input type="text" 
+                                   class="search-input"
+                                   name="buscar" 
+                                   placeholder="Buscar por nombre, apellido o teléfono"
+                                   value="{{ request.GET.buscar }}"
+                                   autocomplete="off">
+                        </div>
+                        <button type="submit" class="search-btn">
+                            <i class="fas fa-search me-1"></i>
+                            Buscar
+                        </button>
+                        {% if request.GET.buscar %}
+                        <a href="{% url 'clientes:lista_clientes' %}" class="clear-btn">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        {% endif %}
+                    </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resultados de búsqueda -->
+    {% if request.GET.buscar %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-agua-info border-0 shadow-sm">
+                <div class="d-flex align-items-center">
+                    <div class="alert-icon me-3">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        {% if clientes %}
+                            <strong>{{ clientes.count }}</strong> resultado{{ clientes.count|pluralize }} encontrado{{ clientes.count|pluralize }} para "<strong>{{ request.GET.buscar }}</strong>"
+                        {% else %}
+                            No se encontraron resultados para "<strong>{{ request.GET.buscar }}</strong>"
+                        {% endif %}
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Lista de clientes - Diseño mejorado -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm border-0 clients-card">
+                {% if clientes %}
+                <div class="card-header bg-white border-bottom-0 p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h5 class="mb-0 text-agua-dark fw-semibold">
+                                <i class="fas fa-list-ul me-2"></i>
+                                Lista de Clientes
+                            </h5>
+                            <small class="text-muted">Gestiona toda tu base de clientes</small>
+                        </div>
+                        <div class="badge bg-agua-light text-agua-dark px-3 py-2 fs-6">
+                            {{ clientes.count }} cliente{{ clientes.count|pluralize }}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 modern-table">
+                            <thead class="table-header">
+                                <tr>
+                                    <th class="ps-4 py-3">Cliente</th>
+                                    <th class="py-3">Contacto</th>
+                                    <th class="py-3">Dirección</th>
+                                    <th class="text-center py-3">Estado</th>
+                                    <th class="text-center py-3">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cliente in clientes %}
+                                <tr class="client-row {% if cliente.debe_total > 0 %}debt-row{% endif %}">
+                                    <td class="ps-4 py-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="client-avatar me-3">
+                                                <span>{{ cliente.nombre|first }}{{ cliente.apellido|first }}</span>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 fw-semibold text-dark">{{ cliente.nombre }} {{ cliente.apellido }}</h6>
+                                                <small class="text-muted">ID: #{{ cliente.id|stringformat:"04d" }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-3">
+                                        {% if cliente.telefono %}
+                                            <a href="tel:{{ cliente.telefono }}" class="contact-link">
+                                                <i class="fas fa-phone-alt me-2"></i>
+                                                {{ cliente.telefono }}
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted">
+                                                <i class="fas fa-phone-slash me-2"></i>
+                                                Sin teléfono
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-3">
+                                        <div class="address-text">
+                                            <i class="fas fa-map-marker-alt me-2 text-agua-blue"></i>
+                                            {{ cliente.direccion|truncatechars:35 }}
+                                        </div>
+                                    </td>
+                                    <td class="text-center py-3">
+                                        {% if cliente.debe_total > 0 %}
+                                            <span class="status-badge debt-badge">
+                                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                                {{ cliente.debe_total }} bot.
+                                            </span>
+                                        {% else %}
+                                            <span class="status-badge success-badge">
+                                                <i class="fas fa-check-circle me-1"></i>
+                                                Al día
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center py-3">
+                                        <div class="action-buttons">
+                                            <a href="{% url 'clientes:detalle_cliente' cliente.pk %}" 
+                                               class="action-btn view-btn"
+                                               data-bs-toggle="tooltip" 
+                                               title="Ver historial">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'clientes:editar_cliente' cliente.pk %}" 
+                                               class="action-btn edit-btn"
+                                               data-bs-toggle="tooltip" 
+                                               title="Editar cliente">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% if cliente.activo %}
+                                            <form action="{% url 'clientes:editar_cliente' cliente.pk %}" 
+                                                  method="post" 
+                                                  style="display:inline;"
+                                                  onsubmit="return confirm('¿Desactivar este cliente?')">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="activo" value="false">
+                                                <button type="submit" 
+                                                        class="action-btn delete-btn"
+                                                        data-bs-toggle="tooltip" 
+                                                        title="Desactivar">
+                                                    <i class="fas fa-user-slash"></i>
+                                                </button>
+                                            </form>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% else %}
+                <div class="card-body">
+                    <div class="empty-state text-center py-5">
+                        <div class="empty-icon mb-4">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h4 class="text-agua-dark mb-3">
+                            {% if request.GET.buscar %}
+                                No se encontraron clientes
+                            {% else %}
+                                No hay clientes registrados
+                            {% endif %}
+                        </h4>
+                        <p class="text-muted mb-4 lead">
+                            {% if request.GET.buscar %}
+                                Intenta con otros términos de búsqueda o verifica la información ingresada
+                            {% else %}
+                                Comienza agregando tu primer cliente para gestionar tu negocio
+                            {% endif %}
+                        </p>
+                        {% if not request.GET.buscar %}
+                        <a href="{% url 'clientes:nuevo_cliente' %}" class="btn btn-agua-blue btn-lg px-4">
+                            <i class="fas fa-plus me-2"></i>
+                            Agregar Primer Cliente
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
                 {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estilos mejorados y modernos -->
+<style>
+:root {
+    --agua-blue: #0891b2;
+    --agua-dark: #164e63;
+    --agua-light: #a5f3fc;
+    --agua-light-bg: #ecfeff;
+    --agua-gradient: linear-gradient(135deg, #0891b2, #0e7490, #164e63);
+}
+
+/* Gradientes y fondos */
+.bg-gradient-agua {
+    background: var(--agua-gradient);
+}
+
+.text-white-75 {
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* Iconos y elementos circulares */
+.icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.search-icon {
+    width: 50px;
+    height: 50px;
+    background: var(--agua-light-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+/* Cards mejoradas */
+.search-card {
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.search-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(8, 145, 178, 0.15) !important;
+}
+
+.clients-card {
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+/* Formulario de búsqueda */
+.search-form .input-group-text {
+    border-radius: 10px 0 0 10px;
+}
+
+.search-form .form-control {
+    border-radius: 0;
+}
+
+.search-form .btn {
+    border-radius: 0 10px 10px 0;
+}
+
+/* Tabla moderna */
+.modern-table {
+    font-size: 14px;
+}
+
+.table-header {
+    background: linear-gradient(90deg, var(--agua-light-bg), #f8fafc);
+    color: var(--agua-dark);
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.client-row {
+    transition: all 0.2s ease;
+    border-left: 4px solid transparent;
+}
+
+.client-row:hover {
+    background-color: rgba(8, 145, 178, 0.03);
+    border-left-color: var(--agua-blue);
+    transform: translateX(2px);
+}
+
+.debt-row {
+    background-color: rgba(255, 193, 7, 0.05);
+}
+
+/* Avatar del cliente */
+.client-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: var(--agua-gradient);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 8px rgba(8, 145, 178, 0.3);
+}
+
+/* Enlaces de contacto */
+.contact-link {
+    color: var(--agua-dark);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.contact-link:hover {
+    color: var(--agua-blue);
+    text-decoration: underline;
+}
+
+/* Texto de dirección */
+.address-text {
+    color: #6b7280;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+/* Badges de estado */
+.status-badge {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.success-badge {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.debt-badge {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+/* Botones de acción */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.action-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.view-btn {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+}
+
+.view-btn:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.edit-btn {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.edit-btn:hover {
+    background: linear-gradient(135deg, #d97706, #b45309);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.delete-btn {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.delete-btn:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* Estado vacío */
+.empty-state .empty-icon {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    background: var(--agua-light-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: var(--agua-blue);
+}
+
+/* Alertas */
+.alert-agua-info {
+    background: var(--agua-light-bg);
+    border-left: 4px solid var(--agua-blue);
+    color: var(--agua-dark);
+}
+
+.alert-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--agua-blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+}
+
+/* Botones principales */
+.btn-agua-blue {
+    background: var(--agua-gradient);
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-agua-blue:hover {
+    background: linear-gradient(135deg, #0e7490, #164e63);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(8, 145, 178, 0.4);
+}
+
+.bg-agua-light {
+    background-color: var(--agua-light-bg);
+}
+
+.text-agua-blue { color: var(--agua-blue); }
+.text-agua-dark { color: var(--agua-dark); }
+
+/* Contador compacto */
+.stats-compact {
+    padding: 1rem 0;
+}
+
+.counter-badge {
+    background: var(--agua-gradient);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 16px;
+    box-shadow: 0 4px 15px rgba(8, 145, 178, 0.3);
+}
+
+/* Búsqueda optimizada */
+.search-container {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(8, 145, 178, 0.1);
+}
+
+.search-title {
+    color: var(--agua-dark);
+    font-weight: 700;
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.search-form-optimized {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-input-group {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.search-input-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+.search-input-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--agua-blue);
+    font-size: 16px;
+    z-index: 2;
+}
+
+.search-input {
+    width: 100%;
+    padding: 16px 16px 16px 48px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background: #fafafa;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--agua-blue);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+}
+
+.search-input::placeholder {
+    color: #9ca3af;
+    font-weight: 400;
+}
+
+.search-btn {
+    background: var(--agua-gradient);
+    color: white;
+    border: none;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.search-btn:hover {
+    background: linear-gradient(135deg, #0e7490, #164e63);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(8, 145, 178, 0.4);
+}
+
+.clear-btn {
+    background: #f3f4f6;
+    color: #6b7280;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    width: 50px;
+}
+
+.clear-btn:hover {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .icon-circle {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+    
+    .client-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 14px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .action-btn {
+        width: 100%;
+        height: 32px;
+    }
+    
+    .table-responsive {
+        border: 0;
+    }
+    
+    .modern-table thead {
+        display: none;
+    }
+    
+    .modern-table tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 1rem;
+        background: white;
+    }
+    
+    .modern-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    
+    .modern-table td:before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--agua-dark);
+        margin-right: 1rem;
+        min-width: 100px;
+    }
+    
+    .modern-table td:last-child {
+        border-bottom: 0;
+    }
+
+    /* Responsive para búsqueda */
+    @media (max-width: 768px) {
+        .search-container {
+            padding: 1.5rem;
+            margin: 0 1rem;
+        }
+        
+        .search-input-group {
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .search-btn, .clear-btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .clear-btn {
+            width: 100%;
+        }
+    }
+}
+</style>
+
+<!-- JavaScript mejorado -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus en búsqueda
+    const searchInput = document.querySelector('input[name="buscar"]');
+    if (searchInput && !searchInput.value) {
+        searchInput.focus();
+    }
+    
+    // Inicializar tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Auto-dismiss alerts
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        }, 8000);
+    });
+    
+    // Animaciones suaves para las filas
+    const rows = document.querySelectorAll('.client-row');
+    rows.forEach((row, index) => {
+        row.style.opacity = '0';
+        row.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            row.style.transition = 'all 0.3s ease';
+            row.style.opacity = '1';
+            row.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
 {% endblock %}

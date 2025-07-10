@@ -4,11 +4,24 @@ from .views import *
 app_name = 'clientes'
 
 urlpatterns = [
+    # URLs existentes - NO TOCAR
     path('', dashboard, name='dashboard'),
-    path('lista/', ClienteListView.as_view(), name='lista_clientes'), # Nueva ruta
+    path('lista/', ClienteListView.as_view(), name='lista_clientes'),
     path('nuevo/', ClienteCreateView.as_view(), name='nuevo_cliente'),
     path('<int:pk>/', ClienteDetailView.as_view(), name='detalle_cliente'),
     path('editar/<int:pk>/', ClienteUpdateView.as_view(), name='editar_cliente'),
     path('despacho/nuevo/', DespachoCreateView.as_view(), name='nuevo_despacho'),
     path('despacho/<int:pk>/entregado/', marcar_entregado, name='marcar_entregado'),
+    
+    # SOLO ESTA LÍNEA ES NUEVA - para la página de búsqueda
+    path('buscar-cliente/', buscar_cliente_vista, name='buscar_cliente_vista'),
+    
+    # URLs del dashboard - NO TOCAR
+    path('dashboard-despachos/', dashboard_despachos, name='dashboard_despachos'),
+    path('api/clientes/', api_clientes_activos, name='api_clientes'),
+    path('api/despachos-hoy/', api_despachos_hoy, name='api_despachos_hoy'),
+    path('api/crear-despacho/', api_crear_despacho, name='api_crear_despacho'),
+    path('api/crear-cliente/', api_crear_cliente, name='api_crear_cliente'),
+    path('api/eliminar-despacho/<int:despacho_id>/', api_eliminar_despacho, name='api_eliminar_despacho'),
+    path('api/marcar-entregado/<int:despacho_id>/', api_marcar_entregado, name='api_marcar_entregado'),
 ]

@@ -1,36 +1,230 @@
 {% load static %}
-<ul class="navbar-nav me-auto">
-    <li class="nav-item">
-        <a class="nav-link {% if request.resolver_match.url_name == 'lista_clientes' %}active{% endif %}" 
-           href="{% url 'clientes:lista_clientes' %}">
-            <i class="fas fa-users me-1"></i> Clientes
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link {% if request.resolver_match.url_name == 'nuevo_despacho' %}active{% endif %}" 
-           href="{% url 'clientes:nuevo_despacho' %}">
-            <i class="fas fa-truck me-1"></i> Despachos
-        </a>
-    </li>
-</ul>
 
-<ul class="navbar-nav ms-auto">
-    {% if user.is_authenticated %}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-bs-toggle="dropdown">
-            <i class="fas fa-user-circle me-1"></i> {{ user.username }}
-        </a>
-        <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="#">Mi perfil</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{% url 'usuarios:logout' %}">Cerrar sesión</a></li>
-        </ul>
-    </li>
-    {% else %}
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'usuarios:login' %}">
-            <i class="fas fa-sign-in-alt me-1"></i> Iniciar sesión
-        </a>
-    </li>
-    {% endif %}
-</ul>
+<nav class="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            
+            <!-- Logo/Brand -->
+            <div class="flex items-center">
+                <div class="flex-shrink-0 flex items-center">
+                    <i class="fas fa-tint text-2xl text-agua-blue mr-3"></i>
+                    <span class="text-xl font-bold text-gray-800">Delivery Agua</span>
+                </div>
+            </div>
+
+            <!-- Navegación principal (Desktop) -->
+            <div class="hidden md:block">
+                <div class="ml-10 flex items-baseline space-x-4">
+                    <!-- Buscar Cliente - CORREGIDO -->
+                    <a href="{% url 'clientes:buscar_cliente_vista' %}" 
+                       class="nav-link {% if request.resolver_match.url_name == 'buscar_cliente_vista' %}active{% endif %}">
+                        <i class="fas fa-search mr-2"></i>
+                        Buscar Cliente
+                    </a>
+                    
+                    <!-- Todos los Clientes -->
+                    <a href="{% url 'clientes:lista_clientes' %}" 
+                       class="nav-link {% if request.resolver_match.url_name == 'lista_clientes' %}active{% endif %}">
+                        <i class="fas fa-users mr-2"></i>
+                        Todos los Clientes
+                    </a>
+                    
+                    <!-- Despachos -->
+                    <a href="{% url 'clientes:nuevo_despacho' %}" 
+                       class="nav-link {% if request.resolver_match.url_name == 'nuevo_despacho' %}active{% endif %}">
+                        <i class="fas fa-truck mr-2"></i>
+                        Despachos
+                    </a>
+                </div>
+            </div>
+
+            <!-- Resto igual... -->
+            <div class="flex items-center space-x-4">
+                {% if user.is_authenticated %}
+                <div class="hidden md:block relative group">
+                    <button class="user-menu-button flex items-center text-sm rounded-full text-gray-700 hover:text-agua-blue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-agua-blue transition-colors duration-200">
+                        <i class="fas fa-user-circle text-lg mr-2"></i>
+                        <span class="font-medium">{{ user.username }}</span>
+                        <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                    </button>
+                    
+                    <div class="user-dropdown absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right">
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-user mr-2"></i>
+                            Mi perfil
+                        </a>
+                        <div class="border-t border-gray-100 my-1"></div>
+                        <form method="post" action="{% url 'usuarios:logout' %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item text-red-600 hover:bg-red-50 w-full text-left border-0 bg-transparent">
+                                <i class="fas fa-sign-out-alt mr-2"></i>
+                                Cerrar sesión
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <div class="hidden md:block">
+                    <a href="{% url 'usuarios:login' %}" class="nav-link">
+                        <i class="fas fa-sign-in-alt mr-2"></i>
+                        Iniciar sesión
+                    </a>
+                </div>
+                {% endif %}
+
+                <!-- Botón menú móvil -->
+                <div class="md:hidden">
+                    <button type="button" 
+                            class="mobile-menu-button inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-agua-blue transition-colors duration-200"
+                            aria-controls="mobile-menu" 
+                            aria-expanded="false">
+                        <span class="sr-only">Abrir menú principal</span>
+                        <i class="fas fa-bars menu-icon text-lg"></i>
+                        <i class="fas fa-times close-icon text-lg hidden"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menú móvil -->
+    <div class="mobile-menu md:hidden hidden" id="mobile-menu">
+        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50 border-t border-gray-200">
+            
+            <a href="{% url 'clientes:buscar_cliente_vista' %}" 
+               class="mobile-nav-link {% if request.resolver_match.url_name == 'buscar_cliente_vista' %}active{% endif %}">
+                <i class="fas fa-search mr-3"></i>
+                Buscar Cliente
+            </a>
+            
+            <a href="{% url 'clientes:lista_clientes' %}" 
+               class="mobile-nav-link {% if request.resolver_match.url_name == 'lista_clientes' %}active{% endif %}">
+                <i class="fas fa-users mr-3"></i>
+                Todos los Clientes
+            </a>
+            
+            <a href="{% url 'clientes:nuevo_despacho' %}" 
+               class="mobile-nav-link {% if request.resolver_match.url_name == 'nuevo_despacho' %}active{% endif %}">
+                <i class="fas fa-truck mr-3"></i>
+                Despachos
+            </a>
+
+            <!-- Sección de usuario móvil igual... -->
+            <div class="border-t border-gray-300 pt-3 mt-3">
+                {% if user.is_authenticated %}
+                    <div class="px-3 py-2">
+                        <p class="text-sm font-medium text-gray-700 flex items-center">
+                            <i class="fas fa-user-circle mr-2"></i>
+                            {{ user.username }}
+                        </p>
+                    </div>
+                    <a href="#" class="mobile-nav-link">
+                        <i class="fas fa-user mr-3"></i>
+                        Mi perfil
+                    </a>
+                    <form method="post" action="{% url 'usuarios:logout' %}" style="display: inline; width: 100%;">
+                        {% csrf_token %}
+                        <button type="submit" class="mobile-nav-link text-red-600 w-full text-left border-0 bg-transparent">
+                            <i class="fas fa-sign-out-alt mr-3"></i>
+                            Cerrar sesión
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'usuarios:login' %}" class="mobile-nav-link">
+                        <i class="fas fa-sign-in-alt mr-3"></i>
+                        Iniciar sesión
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Estilos iguales... -->
+<style>
+    .nav-link {
+        @apply text-gray-600 hover:bg-gray-100 hover:text-agua-blue px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-200;
+    }
+    
+    .nav-link.active {
+        @apply bg-agua-blue text-white shadow-sm;
+    }
+    
+    .mobile-nav-link {
+        @apply text-gray-600 hover:bg-gray-200 hover:text-agua-blue block px-3 py-2 rounded-md text-base font-medium flex items-center transition-all duration-200;
+    }
+    
+    .mobile-nav-link.active {
+        @apply bg-agua-blue text-white;
+    }
+    
+    .dropdown-item {
+        @apply block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-agua-blue transition-colors duration-150 flex items-center;
+    }
+    
+    .user-dropdown {
+        @apply transition-all duration-200 transform;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // JavaScript igual que antes...
+    const mobileMenuButton = document.querySelector('.mobile-menu-button');
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const menuIcon = document.querySelector('.menu-icon');
+    const closeIcon = document.querySelector('.close-icon');
+    
+    if (mobileMenuButton) {
+        mobileMenuButton.addEventListener('click', function() {
+            const isHidden = mobileMenu.classList.contains('hidden');
+            
+            if (isHidden) {
+                mobileMenu.classList.remove('hidden');
+                menuIcon.classList.add('hidden');
+                closeIcon.classList.remove('hidden');
+                mobileMenuButton.setAttribute('aria-expanded', 'true');
+            } else {
+                mobileMenu.classList.add('hidden');
+                menuIcon.classList.remove('hidden');
+                closeIcon.classList.add('hidden');
+                mobileMenuButton.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+    
+    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+    mobileNavLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+                menuIcon.classList.remove('hidden');
+                closeIcon.classList.add('hidden');
+                mobileMenuButton.setAttribute('aria-expanded', 'false');
+            }
+        });
+    });
+    
+    const userMenuButton = document.querySelector('.user-menu-button');
+    const userDropdown = document.querySelector('.user-dropdown');
+    
+    if (userMenuButton && userDropdown) {
+        userMenuButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            const isVisible = !userDropdown.classList.contains('opacity-0');
+            
+            if (isVisible) {
+                userDropdown.classList.add('opacity-0', 'invisible');
+            } else {
+                userDropdown.classList.remove('opacity-0', 'invisible');
+            }
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (!userMenuButton.contains(e.target) && !userDropdown.contains(e.target)) {
+                userDropdown.classList.add('opacity-0', 'invisible');
+            }
+        });
+    }
+});
+</script>

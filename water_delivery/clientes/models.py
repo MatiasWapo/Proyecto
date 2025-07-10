@@ -6,7 +6,7 @@ class Cliente(models.Model):
     direccion = models.TextField()
     telefono = models.CharField(max_length=20)
     activo = models.BooleanField(default=True)
-    debe_total = models.IntegerField(default=0)  # ¡Campo faltante!
+    debe_total = models.IntegerField(default=0)
     
     def __str__(self):
         return f"{self.nombre} {self.apellido}"
@@ -16,13 +16,8 @@ class Despacho(models.Model):
     fecha = models.DateTimeField(auto_now_add=True)
     cantidad_botellones = models.IntegerField()
     entregado = models.BooleanField(default=False)
-    notas = models.TextField(blank=True, null=True)  # Campo añadido
+    notas = models.TextField(blank=True, null=True)
     
-    def save(self, *args, **kwargs):
-        if not self.pk:  # Solo para nuevos despachos
-            self.cliente.debe_total += self.cantidad_botellones
-            self.cliente.save()
-        super().save(*args, **kwargs)
-    
+    # REMOVEMOS el save() personalizado para evitar duplicación
     def __str__(self):
         return f"Despacho a {self.cliente} - {self.cantidad_botellones} botellones"
