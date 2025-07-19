@@ -23,18 +23,24 @@
     
     <form method="post">
         {% csrf_token %}
+        
         <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="id_nueva_password">
-                {{ form.nueva_password.label }}
+                Nueva Contraseña
             </label>
             {{ form.nueva_password }}
+            {% if form.nueva_password.help_text %}
+            <p class="text-xs text-gray-500 mt-1">{{ form.nueva_password.help_text }}</p>
+            {% endif %}
         </div>
+        
         <div class="mb-6">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="id_confirmar_password">
-                {{ form.confirmar_password.label }}
+                Confirmar Contraseña
             </label>
             {{ form.confirmar_password }}
         </div>
+        
         <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition duration-200">
             Cambiar contraseña
         </button>

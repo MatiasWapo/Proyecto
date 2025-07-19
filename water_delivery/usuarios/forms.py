@@ -4,6 +4,7 @@ from django.core.validators import MinLengthValidator, RegexValidator  # Añade 
 from django.core.exceptions import ValidationError
 from .models import Usuario
 import re
+from django.contrib.auth.password_validation import validate_password
 
 class CustomUserCreationForm(UserCreationForm):
     telefono = forms.CharField(
@@ -108,31 +109,32 @@ class PreguntasSeguridadForm(forms.Form):
     nueva_password = forms.CharField(
         label="Nueva Contraseña",
         widget=forms.PasswordInput(attrs={
-            'class': 'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline',
+            'class': 'w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
             'placeholder': 'Ingresa tu nueva contraseña'
         }),
-        validators=[MinLengthValidator(8)]
+        validators=[
+            MinLengthValidator(8, message="La contraseña debe tener al menos 8 caracteres"),
+            RegexValidator(
+                regex='^(?=.*[A-Za-z])(?=.*\d)',
+                message="La contraseña debe contener letras y números"
+            )
+        ]
     )
     confirmar_password = forms.CharField(
         label="Confirmar Contraseña",
         widget=forms.PasswordInput(attrs={
-            'class': 'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline',
+            'class': 'w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
             'placeholder': 'Confirma tu nueva contraseña'
         })
     )
-
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
-        super().__init__(*args, **kwargs)
 
     def clean(self):
         cleaned_data = super().clean()
         nueva_password = cleaned_data.get('nueva_password')
         confirmar_password = cleaned_data.get('confirmar_password')
 
-        if nueva_password and confirmar_password:
-            if nueva_password != confirmar_password:
-                raise forms.ValidationError("Las contraseñas no coinciden")
+        if nueva_password and confirmar_password and nueva_password != confirmar_password:
+            raise forms.ValidationError("Las contraseñas no coinciden")
         
         return cleaned_data
 
@@ -144,3 +146,41 @@ class EmailForm(forms.Form):
             'placeholder': 'tu@ejemplo.com'
         })
     )
+    
+class ResetPasswordForm(forms.Form):
+    nueva_password = forms.CharField(
+        label="Nueva contraseña",
+        widget=forms.PasswordInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 pl-12',
+            'placeholder': 'Ingresa tu nueva contraseña'
+        }),
+        validators=[
+            MinLengthValidator(8, message="La contraseña debe tener al menos 8 caracteres"),
+            RegexValidator(
+                regex='^(?=.*[A-Za-z])(?=.*\d)',
+                message="La contraseña debe contener letras y números"
+            )
+        ]
+    )
+    confirmar_password = forms.CharField(
+        label="Confirmar contraseña",
+        widget=forms.PasswordInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 pl-12',
+            'placeholder': 'Confirma tu nueva contraseña'
+        })
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        nueva_password = cleaned_data.get("nueva_password")
+        confirmar_password = cleaned_data.get("confirmar_password")
+
+        if nueva_password and confirmar_password and nueva_password != confirmar_password:
+            raise forms.ValidationError("Las contraseñas no coinciden")
+
+        try:
+            validate_password(nueva_password)
+        except ValidationError as e:
+            raise forms.ValidationError(e.messages)
+
+        return cleaned_data

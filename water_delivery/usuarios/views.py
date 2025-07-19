@@ -4,13 +4,14 @@ from django.urls import reverse_lazy, reverse
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
-from .forms import CustomUserCreationForm, RecuperacionForm, PreguntasSeguridadForm, EmailForm
+from .forms import CustomUserCreationForm, RecuperacionForm, PreguntasSeguridadForm, EmailForm, ResetPasswordForm
 from .models import Usuario
 from django.core.mail import send_mail
 from django.utils import timezone
 from datetime import timedelta
 import secrets
 from django.conf import settings
+
 
 DEFAULT_FROM_EMAIL = settings.DEFAULT_FROM_EMAIL
 
@@ -60,6 +61,7 @@ class RecuperacionEmailView(FormView):
             usuario.token_recuperacion_fecha = timezone.now()
             usuario.save()
             
+            # Asegúrate que estás usando el nombre correcto de la URL
             reset_url = self.request.build_absolute_uri(
                 reverse('usuarios:resetear_con_token', kwargs={'token': token})
             )
@@ -91,32 +93,44 @@ El equipo de Water Delivery''',
 
 class ResetearConTokenView(FormView):
     template_name = 'usuarios/resetear_con_token.html'
-    form_class = PreguntasSeguridadForm
+    form_class = ResetPasswordForm
     success_url = reverse_lazy('usuarios:login')
 
     def dispatch(self, request, *args, **kwargs):
         token = kwargs.get('token')
+        print(f"Token recibido: {token}")  # Debug
+        
         try:
             self.usuario = Usuario.objects.get(
                 token_recuperacion=token,
                 token_recuperacion_fecha__gte=timezone.now()-timedelta(hours=24)
             )
+            print(f"Usuario encontrado: {self.usuario.username}")  # Debug
             return super().dispatch(request, *args, **kwargs)
+            
         except Usuario.DoesNotExist:
+            print("Token inválido o expirado")  # Debug
             messages.error(request, 'El enlace de recuperación no es válido o ha expirado.')
             return redirect('usuarios:recuperar')
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.usuario
-        return kwargs
-
     def form_valid(self, form):
+        print("Formulario válido, procesando...")  # Debug
         nueva_password = form.cleaned_data['nueva_password']
+        
+        # Validación adicional
+        if nueva_password != form.cleaned_data['confirmar_password']:
+            messages.error(self.request, 'Las contraseñas no coinciden')
+            return self.form_invalid(form)
+            
         self.usuario.set_password(nueva_password)
         self.usuario.token_recuperacion = None
         self.usuario.token_recuperacion_fecha = None
         self.usuario.save()
         
+        print("Contraseña actualizada correctamente")  # Debug
         messages.success(self.request, '¡Contraseña actualizada correctamente! Ahora puede iniciar sesión.')
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print("Formulario inválido, errores:", form.errors)  # Debug
+        return super().form_invalid(form)

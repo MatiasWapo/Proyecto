@@ -13,6 +13,7 @@ class LoginRequiredMiddleware:
             '/usuarios/register/',
             '/usuarios/recuperar/',
             '/usuarios/preguntas-seguridad/',
+            '/usuarios/resetear/',
             '/admin/',
         ]
         
