@@ -25,10 +25,12 @@
         <div class="col-12">
             <div class="search-container">
                 <div class="search-header mb-3">
-                    <h4 class="search-title">
-                        <i class="fas fa-search me-2"></i>
-                        Buscar Clientes
-                    </h4>
+                    <a href="{% url 'clientes:lista_clientes' %}" 
+                        class="nav-link {% if request.resolver_match.url_name == 'lista_clientes' %}active{% endif %}"
+                        onclick="focusSearch()">
+                        <i class="fas fa-search mr-2"></i>
+                            Buscar Cliente
+                    </a>
                 </div>
                 <form method="get" class="search-form-optimized">
                     <div class="search-input-group">
@@ -731,5 +733,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }, index * 100);
     });
 });
+function focusSearch() {
+    // Si ya estamos en la página de lista de clientes
+    if (window.location.pathname === "{% url 'clientes:lista_clientes' %}") {
+        const searchInput = document.querySelector('input[name="buscar"]');
+        if (searchInput) {
+            searchInput.focus();
+        }
+    }
+}
+// Auto-focus en búsqueda cuando viene del navbar
+if (window.location.hash === '#search') {
+    const searchInput = document.querySelector('input[name="buscar"]');
+    if (searchInput) {
+        searchInput.focus();
+    }
+}
 </script>
 {% endblock %}

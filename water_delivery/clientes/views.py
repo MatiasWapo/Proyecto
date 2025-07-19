@@ -27,35 +27,6 @@ def dashboard_despachos(request):
     """Nueva vista para el dashboard de despachos diarios"""
     return render(request, 'clientes/despacho_nuevo.html')
 
-# NUEVA FUNCIÓN - SOLO ESTA ES NUEVA
-@login_required
-def buscar_cliente_vista(request):
-    """Vista para la página de búsqueda que redirige a buscar_cliente.html"""
-    cliente = None
-    
-    if request.GET.get('buscar'):
-        busqueda = request.GET.get('buscar').strip()
-        
-        # Buscar por nombre, apellido o teléfono
-        clientes = Cliente.objects.filter(
-            Q(nombre__icontains=busqueda) |
-            Q(apellido__icontains=busqueda) |
-            Q(telefono__icontains=busqueda),
-            activo=True
-        ).order_by('nombre')
-        
-        # Si hay resultados, redirigir a tu buscar_cliente.html existente
-        if clientes.exists():
-            cliente = clientes.first()
-            # Redirigir a tu template buscar_cliente.html con el cliente encontrado
-            return render(request, 'clientes/buscar_cliente.html', {'cliente': cliente})
-    
-    # Si no hay búsqueda o no se encontró nada, mostrar página de búsqueda
-    return render(request, 'clientes/pagina_busqueda.html', {
-        'cliente': cliente,
-        'busqueda': request.GET.get('buscar', '')
-    })
-
 # APIs para el dashboard de despachos - NO TOCAR
 def api_clientes_activos(request):
     """API para obtener lista de clientes activos"""

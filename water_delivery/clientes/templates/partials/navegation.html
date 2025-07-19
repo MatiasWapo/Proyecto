@@ -15,13 +15,6 @@
             <!-- Navegación principal (Desktop) -->
             <div class="hidden md:block">
                 <div class="ml-10 flex items-baseline space-x-4">
-                    <!-- Buscar Cliente - CORREGIDO -->
-                    <a href="{% url 'clientes:buscar_cliente_vista' %}" 
-                       class="nav-link {% if request.resolver_match.url_name == 'buscar_cliente_vista' %}active{% endif %}">
-                        <i class="fas fa-search mr-2"></i>
-                        Buscar Cliente
-                    </a>
-                    
                     <!-- Todos los Clientes -->
                     <a href="{% url 'clientes:lista_clientes' %}" 
                        class="nav-link {% if request.resolver_match.url_name == 'lista_clientes' %}active{% endif %}">
@@ -38,7 +31,7 @@
                 </div>
             </div>
 
-            <!-- Resto igual... -->
+            <!-- Sección de usuario -->
             <div class="flex items-center space-x-4">
                 {% if user.is_authenticated %}
                 <div class="hidden md:block relative group">
@@ -91,25 +84,21 @@
     <div class="mobile-menu md:hidden hidden" id="mobile-menu">
         <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50 border-t border-gray-200">
             
-            <a href="{% url 'clientes:buscar_cliente_vista' %}" 
-               class="mobile-nav-link {% if request.resolver_match.url_name == 'buscar_cliente_vista' %}active{% endif %}">
-                <i class="fas fa-search mr-3"></i>
-                Buscar Cliente
-            </a>
-            
+            <!-- Todos los Clientes (Móvil) -->
             <a href="{% url 'clientes:lista_clientes' %}" 
                class="mobile-nav-link {% if request.resolver_match.url_name == 'lista_clientes' %}active{% endif %}">
                 <i class="fas fa-users mr-3"></i>
                 Todos los Clientes
             </a>
             
+            <!-- Despachos (Móvil) -->
             <a href="{% url 'clientes:nuevo_despacho' %}" 
                class="mobile-nav-link {% if request.resolver_match.url_name == 'nuevo_despacho' %}active{% endif %}">
                 <i class="fas fa-truck mr-3"></i>
                 Despachos
             </a>
 
-            <!-- Sección de usuario móvil igual... -->
+            <!-- Sección de usuario móvil -->
             <div class="border-t border-gray-300 pt-3 mt-3">
                 {% if user.is_authenticated %}
                     <div class="px-3 py-2">
@@ -140,7 +129,7 @@
     </div>
 </nav>
 
-<!-- Estilos iguales... -->
+<!-- Estilos (sin cambios) -->
 <style>
     .nav-link {
         @apply text-gray-600 hover:bg-gray-100 hover:text-agua-blue px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-200;
@@ -167,9 +156,9 @@
     }
 </style>
 
+<!-- JavaScript (sin cambios) -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // JavaScript igual que antes...
     const mobileMenuButton = document.querySelector('.mobile-menu-button');
     const mobileMenu = document.querySelector('.mobile-menu');
     const menuIcon = document.querySelector('.menu-icon');

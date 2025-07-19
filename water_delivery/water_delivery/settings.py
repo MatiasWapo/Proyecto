@@ -4,15 +4,9 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
+# Security settings (¡OJO! Cambiar en producción)
 SECRET_KEY = 'django-insecure-a!d5f&34%4n*2^4c*&6^0v2d=*c0x)$j-o#mvde^7odl4p2mi-'
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = []
 
 # Application definition
@@ -29,15 +23,17 @@ INSTALLED_APPS = [
     'usuarios',
 ] 
 
+# Crispy Forms Config
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-# Configuración de autenticación
+# Authentication Settings
 AUTH_USER_MODEL = 'usuarios.Usuario'
 LOGIN_URL = 'usuarios:login'
-LOGIN_REDIRECT_URL = 'clientes:dashboard'  # SOLO esta línea
+LOGIN_REDIRECT_URL = 'clientes:lista_clientes'  
 LOGOUT_REDIRECT_URL = 'usuarios:login'
 
+# Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -49,17 +45,9 @@ MIDDLEWARE = [
     'usuarios.middleware.LoginRequiredMiddleware',
 ]
 
-# Preguntas de seguridad
-PREGUNTAS_SEGURIDAD = [
-    ("¿Cuál es el nombre de tu primera mascota?", "mascota"),
-    ("¿En qué ciudad naciste?", "ciudad"),
-    ("¿Cuál es tu comida favorita?", "comida"),
-    ("¿Nombre de tu escuela primaria?", "escuela"),
-    ("¿Modelo de tu primer auto?", "auto"),
-]
-
 ROOT_URLCONF = 'water_delivery.urls'
 
+# Templates
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -96,6 +84,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,  # Asegura contraseñas más seguras
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -106,24 +97,30 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = 'es-es'  # Cambiado a español
+TIME_ZONE = 'America/Argentina/Buenos_Aires'  # Ajusta según tu zona horaria
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# Static files
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Default primary key field type
+# Default primary key
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Configuración de Email (Para desarrollo)
+# Email Configuration (Development)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Servidor SMTP (para Gmail)
+EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'matiasmartimez15@gmail.com'  # Cambiar por tu email
-EMAIL_HOST_PASSWORD = '123456789'  # Cambiar por tu contraseña de app
-DEFAULT_FROM_EMAIL = 'no-reply@waterdelivery.com'  # Email que aparece como remitente
+EMAIL_HOST_USER = 'matiasmartimez15@gmail.com'  # Cambiar por tu email real
+EMAIL_HOST_PASSWORD = 'cezh kyul uxeo nnij'  # Usar contraseña de aplicación
+DEFAULT_FROM_EMAIL = 'matiasmartimez15@gmail.com'  # Debe coincidir con EMAIL_HOST_USER
+PASSWORD_RESET_TIMEOUT = 86400  # 24 horas en segundos para expiración del token
+
+# Security recommendations (para cuando DEBUG=False)
+SESSION_COOKIE_SECURE = False  # Cambiar a True en producción
+CSRF_COOKIE_SECURE = False     # Cambiar a True en producción
+SECURE_SSL_REDIRECT = False    # Cambiar a True en producción

@@ -1,10 +1,9 @@
 from django.urls import path
-from .views import *
+from .views import *  # Importa todas las vistas excepto buscar_cliente_vista
 
 app_name = 'clientes'
 
 urlpatterns = [
-    # URLs existentes - NO TOCAR
     path('', dashboard, name='dashboard'),
     path('lista/', ClienteListView.as_view(), name='lista_clientes'),
     path('nuevo/', ClienteCreateView.as_view(), name='nuevo_cliente'),
@@ -13,10 +12,7 @@ urlpatterns = [
     path('despacho/nuevo/', DespachoCreateView.as_view(), name='nuevo_despacho'),
     path('despacho/<int:pk>/entregado/', marcar_entregado, name='marcar_entregado'),
     
-    # SOLO ESTA LÍNEA ES NUEVA - para la página de búsqueda
-    path('buscar-cliente/', buscar_cliente_vista, name='buscar_cliente_vista'),
-    
-    # URLs del dashboard - NO TOCAR
+    # URLs del dashboard (mantenerlas)
     path('dashboard-despachos/', dashboard_despachos, name='dashboard_despachos'),
     path('api/clientes/', api_clientes_activos, name='api_clientes'),
     path('api/despachos-hoy/', api_despachos_hoy, name='api_despachos_hoy'),
