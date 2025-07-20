@@ -11,6 +11,7 @@ from django.utils import timezone
 from datetime import timedelta
 import secrets
 from django.conf import settings
+from django.db import transaction, connection
 
 
 DEFAULT_FROM_EMAIL = settings.DEFAULT_FROM_EMAIL
@@ -98,39 +99,48 @@ class ResetearConTokenView(FormView):
 
     def dispatch(self, request, *args, **kwargs):
         token = kwargs.get('token')
-        print(f"Token recibido: {token}")  # Debug
-        
         try:
             self.usuario = Usuario.objects.get(
                 token_recuperacion=token,
                 token_recuperacion_fecha__gte=timezone.now()-timedelta(hours=24)
             )
-            print(f"Usuario encontrado: {self.usuario.username}")  # Debug
             return super().dispatch(request, *args, **kwargs)
-            
         except Usuario.DoesNotExist:
-            print("Token inválido o expirado")  # Debug
             messages.error(request, 'El enlace de recuperación no es válido o ha expirado.')
             return redirect('usuarios:recuperar')
 
     def form_valid(self, form):
-        print("Formulario válido, procesando...")  # Debug
         nueva_password = form.cleaned_data['nueva_password']
         
-        # Validación adicional
-        if nueva_password != form.cleaned_data['confirmar_password']:
-            messages.error(self.request, 'Las contraseñas no coinciden')
+        try:
+            # Bloque atómico para garantizar la integridad
+            with transaction.atomic():
+                # 1. Actualizar contraseña
+                self.usuario.set_password(nueva_password)
+                
+                # 2. Invalidar token
+                self.usuario.token_recuperacion = None
+                self.usuario.token_recuperacion_fecha = None
+                
+                # 3. Guardar explícitamente los campos necesarios
+                self.usuario.save(update_fields=[
+                    'password', 
+                    'token_recuperacion',
+                    'token_recuperacion_fecha'
+                ])
+                
+                # 4. Forzar la escritura en la BD
+                from django.db import connection
+                connection.commit()
+                
+                # 5. Verificación inmediata
+                usuario_refreshed = Usuario.objects.get(pk=self.usuario.pk)
+                if not usuario_refreshed.check_password(nueva_password):
+                    raise ValueError("La contraseña no se actualizó en la BD")
+                
+                messages.success(self.request, '¡Contraseña actualizada correctamente!')
+                return super().form_valid(form)
+                
+        except Exception as e:
+            messages.error(self.request, f'Error crítico: {str(e)}')
             return self.form_invalid(form)
-            
-        self.usuario.set_password(nueva_password)
-        self.usuario.token_recuperacion = None
-        self.usuario.token_recuperacion_fecha = None
-        self.usuario.save()
-        
-        print("Contraseña actualizada correctamente")  # Debug
-        messages.success(self.request, '¡Contraseña actualizada correctamente! Ahora puede iniciar sesión.')
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        print("Formulario inválido, errores:", form.errors)  # Debug
-        return super().form_invalid(form)
