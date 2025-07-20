@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import *  # Importa todas las vistas excepto buscar_cliente_vista
+from .views import *
 
 app_name = 'clientes'
 
@@ -11,6 +11,9 @@ urlpatterns = [
     path('editar/<int:pk>/', ClienteUpdateView.as_view(), name='editar_cliente'),
     path('despacho/nuevo/', DespachoCreateView.as_view(), name='nuevo_despacho'),
     path('despacho/<int:pk>/entregado/', marcar_entregado, name='marcar_entregado'),
+    
+    # NUEVA URL para toggle status
+    path('toggle-status/<int:pk>/', toggle_cliente_status, name='toggle_cliente_status'),
     
     # URLs del dashboard (mantenerlas)
     path('dashboard-despachos/', dashboard_despachos, name='dashboard_despachos'),

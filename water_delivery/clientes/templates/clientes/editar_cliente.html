@@ -1,0 +1,361 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Editar Cliente - {{ cliente.nombre }} {{ cliente.apellido }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <div class="edit-icon me-3">
+                                <i class="fas fa-user-edit"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0 text-agua-dark fw-bold">Editar Cliente</h4>
+                                <small class="text-muted">Modifica la información del cliente</small>
+                            </div>
+                        </div>
+                        <div>
+                            <a href="{% url 'clientes:detalle_cliente' cliente.pk %}" class="btn btn-outline-secondary me-2">
+                                <i class="fas fa-eye me-1"></i>
+                                Ver Historial
+                            </a>
+                            <a href="{% url 'clientes:lista_clientes' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>
+                                Volver
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Formulario de edición -->
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 text-agua-dark">
+                        <i class="fas fa-edit me-2"></i>
+                        Información del Cliente
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" class="edit-form">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-4">
+                                    <label for="id_nombre" class="form-label">
+                                        <i class="fas fa-user me-2 text-agua-blue"></i>
+                                        Nombre *
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control form-control-lg" 
+                                           id="id_nombre" 
+                                           name="nombre" 
+                                           value="{{ cliente.nombre }}" 
+                                           required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-4">
+                                    <label for="id_apellido" class="form-label">
+                                        <i class="fas fa-user me-2 text-agua-blue"></i>
+                                        Apellido *
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control form-control-lg" 
+                                           id="id_apellido" 
+                                           name="apellido" 
+                                           value="{{ cliente.apellido }}" 
+                                           required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="id_telefono" class="form-label">
+                                <i class="fas fa-phone me-2 text-agua-blue"></i>
+                                Teléfono
+                            </label>
+                            <input type="tel" 
+                                   class="form-control form-control-lg" 
+                                   id="id_telefono" 
+                                   name="telefono" 
+                                   value="{{ cliente.telefono }}" 
+                                   placeholder="Ej: +1234567890">
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="id_direccion" class="form-label">
+                                <i class="fas fa-map-marker-alt me-2 text-agua-blue"></i>
+                                Dirección *
+                            </label>
+                            <textarea class="form-control form-control-lg" 
+                                      id="id_direccion" 
+                                      name="direccion" 
+                                      rows="3" 
+                                      required 
+                                      placeholder="Dirección completa del cliente">{{ cliente.direccion }}</textarea>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" 
+                                       type="checkbox" 
+                                       id="id_activo" 
+                                       name="activo" 
+                                       {% if cliente.activo %}checked{% endif %}>
+                                <label class="form-check-label" for="id_activo">
+                                    <i class="fas fa-toggle-on me-2 text-success"></i>
+                                    Cliente Activo
+                                </label>
+                                <small class="form-text text-muted d-block mt-1">
+                                    Desmarcar para deshabilitar el cliente sin eliminarlo
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-actions d-flex gap-3">
+                            <button type="submit" class="btn btn-agua-blue btn-lg px-4">
+                                <i class="fas fa-save me-2"></i>
+                                Guardar Cambios
+                            </button>
+                            <a href="{% url 'clientes:detalle_cliente' cliente.pk %}" class="btn btn-outline-secondary btn-lg px-4">
+                                <i class="fas fa-times me-2"></i>
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel lateral con información -->
+        <div class="col-md-4">
+            <!-- Información actual -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-agua-light">
+                    <h6 class="mb-0 text-agua-dark fw-semibold">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Información Actual
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="current-info">
+                        <div class="info-row mb-3">
+                            <label>Cliente:</label>
+                            <div class="d-flex align-items-center">
+                                <div class="mini-avatar me-2">
+                                    {{ cliente.nombre|first }}{{ cliente.apellido|first }}
+                                </div>
+                                <span class="fw-semibold">{{ cliente.nombre }} {{ cliente.apellido }}</span>
+                            </div>
+                        </div>
+                        <div class="info-row mb-3">
+                            <label>ID:</label>
+                            <span>#{{ cliente.id|stringformat:"04d" }}</span>
+                        </div>
+                        <div class="info-row mb-3">
+                            <label>Estado:</label>
+                            {% if cliente.activo %}
+                                <span class="badge bg-success">Activo</span>
+                            {% else %}
+                                <span class="badge bg-warning">Inactivo</span>
+                            {% endif %}
+                        </div>
+                        <div class="info-row">
+                            <label>Deuda:</label>
+                            {% if cliente.debe_total > 0 %}
+                                <span class="text-warning fw-bold">{{ cliente.debe_total }} bot.</span>
+                            {% else %}
+                                <span class="text-success">Al día</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones rápidas -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 text-dark fw-semibold">
+                        <i class="fas fa-bolt me-2"></i>
+                        Acciones Rápidas
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'clientes:detalle_cliente' cliente.pk %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-history me-2"></i>
+                            Ver Historial Completo
+                        </a>
+                        <a href="{% url 'clientes:nuevo_despacho' %}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-plus me-2"></i>
+                            Nuevo Despacho
+                        </a>
+                        <a href="{% url 'clientes:toggle_cliente_status' cliente.pk %}" 
+                           class="btn btn-outline-warning btn-sm"
+                           onclick="return confirm('¿Cambiar estado del cliente?')">
+                            <i class="fas fa-toggle-off me-2"></i>
+                            {% if cliente.activo %}Deshabilitar{% else %}Habilitar{% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estilos específicos -->
+<style>
+:root {
+    --agua-blue: #0891b2;
+    --agua-dark: #164e63;
+    --agua-light: #a5f3fc;
+    --agua-light-bg: #ecfeff;
+    --agua-gradient: linear-gradient(135deg, #0891b2, #0e7490, #164e63);
+}
+
+.edit-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--agua-light-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: var(--agua-blue);
+}
+
+.edit-form .form-label {
+    font-weight: 600;
+    color: var(--agua-dark);
+    margin-bottom: 0.5rem;
+}
+
+.edit-form .form-control {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px 16px;
+    transition: all 0.3s ease;
+}
+
+.edit-form .form-control:focus {
+    border-color: var(--agua-blue);
+    box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+}
+
+.form-check-input:checked {
+    background-color: var(--agua-blue);
+    border-color: var(--agua-blue);
+}
+
+.btn-agua-blue {
+    background: var(--agua-gradient);
+    border: none;
+    color: white;
+    font-weight: 600;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-agua-blue:hover {
+    background: linear-gradient(135deg, #0e7490, #164e63);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.bg-agua-light {
+    background-color: var(--agua-light-bg);
+}
+
+.text-agua-blue { color: var(--agua-blue); }
+.text-agua-dark { color: var(--agua-dark); }
+
+.current-info .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.current-info .info-row:last-child {
+    border-bottom: none;
+}
+
+.current-info label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mini-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--agua-gradient);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+    .edit-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus en el primer campo
+    const firstInput = document.querySelector('#id_nombre');
+    if (firstInput) {
+        firstInput.focus();
+    }
+    
+    // Validación en tiempo real
+    const form = document.querySelector('.edit-form');
+    const inputs = form.querySelectorAll('input[required], textarea[required]');
+    
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

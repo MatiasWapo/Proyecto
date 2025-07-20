@@ -202,14 +202,16 @@ def api_marcar_entregado(request, despacho_id):
             'message': f'Error al marcar como entregado: {str(e)}'
         }, status=400)
 
-# Mantén tus vistas existentes exactamente igual
+# VISTAS PRINCIPALES MEJORADAS
+
 class ClienteListView(ListView):
     model = Cliente
     template_name = "clientes/lista_clientes.html"
     context_object_name = "clientes"
     
     def get_queryset(self):
-        queryset = Cliente.objects.filter(activo=True)
+        # MOSTRAR TODOS LOS CLIENTES (activos e inactivos)
+        queryset = Cliente.objects.all()
         buscar = self.request.GET.get('buscar')
         if buscar:
             queryset = queryset.filter(
@@ -217,7 +219,7 @@ class ClienteListView(ListView):
                 Q(apellido__icontains=buscar) |
                 Q(telefono__icontains=buscar)
             )
-        return queryset.order_by('nombre')
+        return queryset.order_by('-activo', 'nombre')  # Activos primero
 
 class ClienteCreateView(CreateView):
     model = Cliente
@@ -229,10 +231,11 @@ class ClienteUpdateView(UpdateView):
     model = Cliente
     fields = ["nombre", "apellido", "direccion", "telefono", "activo"]
     template_name = "clientes/editar_cliente.html"
-    success_url = reverse_lazy("lista_clientes")
-
+    success_url = reverse_lazy('clientes:lista_clientes')
+    
     def post(self, request, *args, **kwargs):
-        if "activo" in request.POST:
+        # Manejar desactivación desde la lista
+        if "activo" in request.POST and request.POST.get("activo") == "false":
             cliente = self.get_object()
             cliente.activo = False
             cliente.save()
@@ -243,6 +246,26 @@ class ClienteDetailView(DetailView):
     model = Cliente
     template_name = "clientes/detalle_cliente.html"
     context_object_name = "cliente"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Obtener todos los despachos del cliente ordenados por fecha
+        context['despachos'] = self.object.despacho_set.all().order_by('-fecha')
+        
+        # Estadísticas del cliente
+        total_despachos = context['despachos'].count()
+        despachos_entregados = context['despachos'].filter(entregado=True).count()
+        despachos_pendientes = context['despachos'].filter(entregado=False).count()
+        total_botellones = sum(d.cantidad_botellones for d in context['despachos'])
+        
+        context.update({
+            'total_despachos': total_despachos,
+            'despachos_entregados': despachos_entregados,
+            'despachos_pendientes': despachos_pendientes,
+            'total_botellones': total_botellones,
+        })
+        
+        return context
 
 def marcar_entregado(request, pk):
     despacho = get_object_or_404(Despacho, pk=pk)
@@ -257,7 +280,7 @@ class DespachoCreateView(CreateView):
     model = Despacho
     fields = ["cliente", "cantidad_botellones", "notas"]
     template_name = "clientes/nuevo_despacho.html"
-    success_url = reverse_lazy("lista_clientes")
+    success_url = reverse_lazy('clientes:lista_clientes')
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -265,3 +288,16 @@ class DespachoCreateView(CreateView):
         self.object.cliente.debe_total += self.object.cantidad_botellones
         self.object.cliente.save()
         return response
+
+# NUEVAS FUNCIONES PARA HABILITAR/DESHABILITAR
+@login_required
+def toggle_cliente_status(request, pk):
+    """Alternar estado activo/inactivo del cliente"""
+    cliente = get_object_or_404(Cliente, pk=pk)
+    cliente.activo = not cliente.activo
+    cliente.save()
+    
+    status = "habilitado" if cliente.activo else "deshabilitado"
+    # Puedes agregar un mensaje aquí si usas Django messages
+    
+    return redirect('clientes:lista_clientes')
