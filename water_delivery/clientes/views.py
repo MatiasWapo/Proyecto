@@ -309,6 +309,7 @@ def historial_despachos(request):
 def api_despachos_recientes(request):
     """API para obtener despachos de los últimos 10 días"""
     from datetime import datetime, timedelta
+    from django.db.models import F
     
     fecha_limite = datetime.now() - timedelta(days=10)
     despachos = Despacho.objects.filter(
@@ -320,7 +321,7 @@ def api_despachos_recientes(request):
         fecha_str = despacho.fecha.strftime('%Y-%m-%d')
         if fecha_str not in despachos_por_dia:
             despachos_por_dia[fecha_str] = {
-                'fecha': despacho.fecha.strftime('%d/%m/%Y'),
+                'fecha': despacho.fecha.strftime('%d/%m/%Y'),  # Formato día/mes/año
                 'total_botellones': 0,
                 'total_despachos': 0,
                 'despachos': []
@@ -338,7 +339,9 @@ def api_despachos_recientes(request):
             'entregado': despacho.entregado
         })
     
-    # Convertir el diccionario a lista ordenada por fecha (más reciente primero)
-    resultado = sorted(despachos_por_dia.values(), key=lambda x: x['despachos'][0]['fecha'], reverse=True)
+    # Convertir a lista ordenada por fecha (sin usar lambda)
+    resultado = []
+    for fecha_str in sorted(despachos_por_dia.keys(), reverse=True):
+        resultado.append(despachos_por_dia[fecha_str])
     
     return JsonResponse({'dias': resultado})
