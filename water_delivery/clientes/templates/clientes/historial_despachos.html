@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Historial de Despachos{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header del Historial -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="flex items-center space-x-4">
+                <div class="bg-agua-blue p-3 rounded-full">
+                    <i class="fas fa-history text-white text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Historial de Despachos</h1>
+                    <p class="text-sm text-gray-600">Últimos 10 días de actividad</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de días -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-gray-900 flex items-center">
+                    <i class="fas fa-calendar-alt mr-2 text-agua-blue"></i>
+                    Resumen por Día
+                </h2>
+                <button onclick="refreshHistorial()" 
+                        class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg transition-colors">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+            
+            <!-- Lista de días -->
+            <div id="historial-container" class="space-y-6">
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-spinner fa-spin text-4xl mb-4"></i>
+                    <p>Cargando historial...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadHistorial();
+});
+
+function loadHistorial() {
+    fetch("{% url 'clientes:api_despachos_recientes' %}")
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('historial-container');
+            
+            if (data.dias.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-truck text-4xl mb-4"></i>
+                        <p>No hay registros de despachos</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = data.dias.map(dia => `
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                    <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+                        <div>
+                            <h3 class="font-semibold text-gray-900">${dia.fecha}</h3>
+                            <p class="text-sm text-gray-600">
+                                ${dia.total_despachos} despachos • ${dia.total_botellones} botellones
+                            </p>
+                        </div>
+                        <button onclick="toggleDayDetails(this)" 
+                                class="text-agua-blue hover:text-agua-blue-dark">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="hidden day-details">
+                        ${dia.despachos.map(despacho => `
+                            <div class="px-4 py-3 border-b border-gray-100 last:border-0 hover:bg-gray-50">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-medium text-gray-900">${despacho.cliente}</p>
+                                        <p class="text-sm text-gray-600">
+                                            ${despacho.cantidad} botellones • ${despacho.hora}
+                                            ${despacho.entregado ? 
+                                                '<span class="ml-2 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded">Entregado</span>' : 
+                                                '<span class="ml-2 bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded">Pendiente</span>'
+                                            }
+                                        </p>
+                                        ${despacho.notas ? `
+                                            <p class="text-sm text-gray-500 mt-1 italic">
+                                                <i class="fas fa-sticky-note mr-1"></i>${despacho.notas}
+                                            </p>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showMessage('Error al cargar el historial', 'error');
+        });
+}
+
+function toggleDayDetails(button) {
+    const dayDetails = button.closest('.border').querySelector('.day-details');
+    dayDetails.classList.toggle('hidden');
+    
+    const icon = button.querySelector('i');
+    if (dayDetails.classList.contains('hidden')) {
+        icon.classList.remove('fa-chevron-up');
+        icon.classList.add('fa-chevron-down');
+    } else {
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-up');
+    }
+}
+
+function refreshHistorial() {
+    const container = document.getElementById('historial-container');
+    container.innerHTML = `
+        <div class="text-center py-8 text-gray-500">
+            <i class="fas fa-spinner fa-spin text-4xl mb-4"></i>
+            <p>Actualizando historial...</p>
+        </div>
+    `;
+    loadHistorial();
+}
+
+function showMessage(message, type) {
+    // Crear notificación toast
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 ${
+        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+    }`;
+    toast.innerHTML = `
+        <div class="flex items-center space-x-2">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+</script>
+{% endblock %}

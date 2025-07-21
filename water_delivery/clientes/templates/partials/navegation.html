@@ -28,6 +28,12 @@
                         <i class="fas fa-truck mr-2"></i>
                         Despachos
                     </a>
+                    <!-- Agregar este enlace junto a los otros enlaces de navegación -->
+                    <a href="{% url 'clientes:historial_despachos' %}" 
+                    class="nav-link {% if request.resolver_match.url_name == 'historial_despachos' %}active{% endif %}">
+                        <i class="fas fa-history mr-2"></i>
+                        Historial
+                    </a>
                 </div>
             </div>
 
@@ -96,6 +102,11 @@
                class="mobile-nav-link {% if request.resolver_match.url_name == 'nuevo_despacho' %}active{% endif %}">
                 <i class="fas fa-truck mr-3"></i>
                 Despachos
+            </a>
+            <a href="{% url 'clientes:historial_despachos' %}" 
+            class="mobile-nav-link {% if request.resolver_match.url_name == 'historial_despachos' %}active{% endif %}">
+                <i class="fas fa-history mr-3"></i>
+                Historial
             </a>
 
             <!-- Sección de usuario móvil -->

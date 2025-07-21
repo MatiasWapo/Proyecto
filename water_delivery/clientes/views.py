@@ -301,3 +301,44 @@ def toggle_cliente_status(request, pk):
     # Puedes agregar un mensaje aquí si usas Django messages
     
     return redirect('clientes:lista_clientes')
+
+def historial_despachos(request):
+    """Vista para mostrar el historial de despachos de los últimos 10 días"""
+    return render(request, 'clientes/historial_despachos.html')
+
+def api_despachos_recientes(request):
+    """API para obtener despachos de los últimos 10 días"""
+    from datetime import datetime, timedelta
+    
+    fecha_limite = datetime.now() - timedelta(days=10)
+    despachos = Despacho.objects.filter(
+        fecha__gte=fecha_limite
+    ).select_related('cliente').order_by('-fecha')
+    
+    despachos_por_dia = {}
+    for despacho in despachos:
+        fecha_str = despacho.fecha.strftime('%Y-%m-%d')
+        if fecha_str not in despachos_por_dia:
+            despachos_por_dia[fecha_str] = {
+                'fecha': despacho.fecha.strftime('%d/%m/%Y'),
+                'total_botellones': 0,
+                'total_despachos': 0,
+                'despachos': []
+            }
+        
+        despachos_por_dia[fecha_str]['total_botellones'] += despacho.cantidad_botellones
+        despachos_por_dia[fecha_str]['total_despachos'] += 1
+        despachos_por_dia[fecha_str]['despachos'].append({
+            'id': despacho.id,
+            'cliente': f"{despacho.cliente.nombre} {despacho.cliente.apellido}",
+            'direccion': despacho.cliente.direccion,
+            'cantidad': despacho.cantidad_botellones,
+            'hora': despacho.fecha.strftime('%H:%M'),
+            'notas': despacho.notas or '',
+            'entregado': despacho.entregado
+        })
+    
+    # Convertir el diccionario a lista ordenada por fecha (más reciente primero)
+    resultado = sorted(despachos_por_dia.values(), key=lambda x: x['despachos'][0]['fecha'], reverse=True)
+    
+    return JsonResponse({'dias': resultado})

@@ -11,14 +11,16 @@ urlpatterns = [
     path('editar/<int:pk>/', ClienteUpdateView.as_view(), name='editar_cliente'),
     path('despacho/nuevo/', DespachoCreateView.as_view(), name='nuevo_despacho'),
     path('despacho/<int:pk>/entregado/', marcar_entregado, name='marcar_entregado'),
-    
-    # NUEVA URL para toggle status
     path('toggle-status/<int:pk>/', toggle_cliente_status, name='toggle_cliente_status'),
     
-    # URLs del dashboard (mantenerlas)
+    # URLs del dashboard
     path('dashboard-despachos/', dashboard_despachos, name='dashboard_despachos'),
+    path('historial-despachos/', historial_despachos, name='historial_despachos'),
+    
+    # APIs
     path('api/clientes/', api_clientes_activos, name='api_clientes'),
     path('api/despachos-hoy/', api_despachos_hoy, name='api_despachos_hoy'),
+    path('api/despachos-recientes/', api_despachos_recientes, name='api_despachos_recientes'),
     path('api/crear-despacho/', api_crear_despacho, name='api_crear_despacho'),
     path('api/crear-cliente/', api_crear_cliente, name='api_crear_cliente'),
     path('api/eliminar-despacho/<int:despacho_id>/', api_eliminar_despacho, name='api_eliminar_despacho'),
