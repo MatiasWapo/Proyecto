@@ -4,37 +4,37 @@
 {% block title %}Historial de Despachos{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 py-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-gray-50 py-4 sm:py-6">
+    <div class="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
         
         <!-- Header del Historial -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-            <div class="flex items-center space-x-4">
-                <div class="bg-agua-blue p-3 rounded-full">
-                    <i class="fas fa-history text-white text-2xl"></i>
+        <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                <div class="bg-agua-blue p-2 sm:p-3 rounded-full mb-2 sm:mb-0">
+                    <i class="fas fa-history text-white text-xl sm:text-2xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900">Historial de Despachos</h1>
-                    <p class="text-sm text-gray-600">Últimos 10 días de actividad</p>
+                    <h1 class="text-lg sm:text-2xl font-bold text-gray-900">Historial de Despachos</h1>
+                    <p class="text-xs sm:text-sm text-gray-600">Últimos 10 días de actividad</p>
                 </div>
             </div>
         </div>
 
         <!-- Lista de días -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold text-gray-900 flex items-center">
+        <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-2">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-900 flex items-center">
                     <i class="fas fa-calendar-alt mr-2 text-agua-blue"></i>
                     Resumen por Día
                 </h2>
                 <button onclick="refreshHistorial()" 
-                        class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg transition-colors">
+                        class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 sm:px-3 py-2 rounded-lg transition-colors text-sm sm:text-base">
                     <i class="fas fa-sync-alt"></i>
                 </button>
             </div>
             
             <!-- Lista de días -->
-            <div id="historial-container" class="space-y-6">
+            <div id="historial-container" class="space-y-4 sm:space-y-6">
                 <div class="text-center py-8 text-gray-500">
                     <i class="fas fa-spinner fa-spin text-4xl mb-4"></i>
                     <p>Cargando historial...</p>

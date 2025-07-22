@@ -23,6 +23,12 @@ class CustomLoginView(LoginView):
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
+        # Redirigir según el tipo de usuario
+        if hasattr(self.request.user, 'tipo_usuario'):
+            if self.request.user.tipo_usuario == 'empresa':
+                return reverse_lazy('clientes:lista_clientes')  # acceso total
+            elif self.request.user.tipo_usuario == 'conductor':
+                return reverse_lazy('clientes:nuevo_despacho')  # solo despachos
         return reverse_lazy('clientes:lista_clientes')
 
 class CustomLogoutView(LogoutView):

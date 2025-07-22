@@ -8,6 +8,7 @@ class Usuario(AbstractUser):
     TIPO_USUARIO_CHOICES = [
         (EMPRESA, 'Empresa'),
         (CONDUCTOR, 'Conductor'),
+        
     ]
 
     tipo_usuario = models.CharField(

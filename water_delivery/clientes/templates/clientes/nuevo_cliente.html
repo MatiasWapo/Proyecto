@@ -3,23 +3,23 @@
 {% block title %}{% if object %}Editar Cliente{% else %}Nuevo Cliente{% endif %}{% endblock %}
 
 {% block content %}
-<h1>{% if object %}Editar Cliente{% else %}Nuevo Cliente{% endif %}</h1>
-<form method="post">
+<h1 class="text-2xl font-bold text-agua-dark mb-6">{% if object %}Editar Cliente{% else %}Nuevo Cliente{% endif %}</h1>
+<form method="post" class="bg-white rounded-xl shadow-lg p-4 max-w-md mx-auto space-y-4">
     {% csrf_token %}
-    <div class="mb-3">
+    <div>
         {{ form.cliente.label_tag }}
-        {{ form.cliente }}
+        {{ form.cliente|add_class:'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-agua-blue focus:border-transparent transition-all duration-200' }}
     </div>
-    <div class="mb-3">
+    <div>
         {{ form.cantidad_botellones.label_tag }}
-        {{ form.cantidad_botellones }}
+        {{ form.cantidad_botellones|add_class:'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-agua-blue focus:border-transparent transition-all duration-200' }}
     </div>
-    {% if form.notas %}  <!-- Solo si añadiste el campo -->
-    <div class="mb-3">
+    {% if form.notas %}
+    <div>
         {{ form.notas.label_tag }}
-        {{ form.notas }}
+        {{ form.notas|add_class:'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-agua-blue focus:border-transparent transition-all duration-200 resize-none' }}
     </div>
     {% endif %}
-    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button type="submit" class="w-full bg-gradient-to-r from-agua-blue to-agua-dark text-white py-3 px-4 rounded-lg font-medium hover:from-agua-dark hover:to-agua-blue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-agua-blue transition-all duration-200 transform hover:scale-105 shadow-lg text-base">Guardar</button>
 </form>
 {% endblock %}

@@ -4,216 +4,154 @@
 {% block title %}Editar Cliente - {{ cliente.nombre }} {{ cliente.apellido }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
-                            <div class="edit-icon me-3">
-                                <i class="fas fa-user-edit"></i>
-                            </div>
-                            <div>
-                                <h4 class="mb-0 text-agua-dark fw-bold">Editar Cliente</h4>
-                                <small class="text-muted">Modifica la información del cliente</small>
-                            </div>
-                        </div>
-                        <div>
-                            <a href="{% url 'clientes:detalle_cliente' cliente.pk %}" class="btn btn-outline-secondary me-2">
-                                <i class="fas fa-eye me-1"></i>
-                                Ver Historial
-                            </a>
-                            <a href="{% url 'clientes:lista_clientes' %}" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left me-1"></i>
-                                Volver
-                            </a>
-                        </div>
-                    </div>
+<div class="min-h-screen bg-gray-50 py-4 sm:py-6">
+    <div class="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="edit-icon flex items-center justify-center">
+                    <i class="fas fa-user-edit"></i>
+                </div>
+                <div>
+                    <h4 class="mb-0 text-agua-dark font-bold text-lg sm:text-xl">Editar Cliente</h4>
+                    <small class="text-gray-500">Modifica la información del cliente</small>
                 </div>
             </div>
+            <div class="flex gap-2 mt-4 sm:mt-0">
+                <a href="{% url 'clientes:detalle_cliente' cliente.pk %}" class="px-4 py-2 rounded bg-agua-light text-agua-dark font-semibold shadow hover:bg-agua-blue hover:text-white transition flex items-center text-sm sm:text-base">
+                    <i class="fas fa-eye me-1"></i> Ver Historial
+                </a>
+                <a href="{% url 'clientes:lista_clientes' %}" class="px-4 py-2 rounded bg-agua-blue text-white font-semibold shadow hover:bg-agua-dark transition flex items-center text-sm sm:text-base">
+                    <i class="fas fa-arrow-left me-1"></i> Volver
+                </a>
+            </div>
         </div>
-    </div>
-
-    <div class="row">
-        <!-- Formulario de edición -->
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0 text-agua-dark">
-                        <i class="fas fa-edit me-2"></i>
-                        Información del Cliente
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Formulario de edición -->
+            <div class="md:col-span-2">
+                <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+                    <h5 class="mb-4 text-agua-dark font-bold flex items-center text-base sm:text-lg">
+                        <i class="fas fa-edit me-2"></i> Información del Cliente
                     </h5>
-                </div>
-                <div class="card-body p-4">
                     <form method="post" class="edit-form">
                         {% csrf_token %}
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-4">
-                                    <label for="id_nombre" class="form-label">
-                                        <i class="fas fa-user me-2 text-agua-blue"></i>
-                                        Nombre *
-                                    </label>
-                                    <input type="text" 
-                                           class="form-control form-control-lg" 
-                                           id="id_nombre" 
-                                           name="nombre" 
-                                           value="{{ cliente.nombre }}" 
-                                           required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group mb-4">
-                                    <label for="id_apellido" class="form-label">
-                                        <i class="fas fa-user me-2 text-agua-blue"></i>
-                                        Apellido *
-                                    </label>
-                                    <input type="text" 
-                                           class="form-control form-control-lg" 
-                                           id="id_apellido" 
-                                           name="apellido" 
-                                           value="{{ cliente.apellido }}" 
-                                           required>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group mb-4">
-                            <label for="id_telefono" class="form-label">
-                                <i class="fas fa-phone me-2 text-agua-blue"></i>
-                                Teléfono
-                            </label>
-                            <input type="tel" 
-                                   class="form-control form-control-lg" 
-                                   id="id_telefono" 
-                                   name="telefono" 
-                                   value="{{ cliente.telefono }}" 
-                                   placeholder="Ej: +1234567890">
-                        </div>
-
-                        <div class="form-group mb-4">
-                            <label for="id_direccion" class="form-label">
-                                <i class="fas fa-map-marker-alt me-2 text-agua-blue"></i>
-                                Dirección *
-                            </label>
-                            <textarea class="form-control form-control-lg" 
-                                      id="id_direccion" 
-                                      name="direccion" 
-                                      rows="3" 
-                                      required 
-                                      placeholder="Dirección completa del cliente">{{ cliente.direccion }}</textarea>
-                        </div>
-
-                        <div class="form-group mb-4">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" 
-                                       type="checkbox" 
-                                       id="id_activo" 
-                                       name="activo" 
-                                       {% if cliente.activo %}checked{% endif %}>
-                                <label class="form-check-label" for="id_activo">
-                                    <i class="fas fa-toggle-on me-2 text-success"></i>
-                                    Cliente Activo
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="id_nombre" class="block font-semibold text-agua-dark mb-1 text-xs sm:text-sm">
+                                    <i class="fas fa-user me-2 text-agua-blue"></i> Nombre *
                                 </label>
-                                <small class="form-text text-muted d-block mt-1">
-                                    Desmarcar para deshabilitar el cliente sin eliminarlo
-                                </small>
+                                <input type="text" class="form-control w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-agua-blue focus:border-transparent transition-all duration-200" id="id_nombre" name="nombre" value="{{ cliente.nombre }}" required>
+                            </div>
+                            <div>
+                                <label for="id_apellido" class="block font-semibold text-agua-dark mb-1 text-xs sm:text-sm">
+                                    <i class="fas fa-user me-2 text-agua-blue"></i> Apellido *
+                                </label>
+                                <input type="text" class="form-control w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-agua-blue focus:border-transparent transition-all duration-200" id="id_apellido" name="apellido" value="{{ cliente.apellido }}" required>
                             </div>
                         </div>
-
-                        <div class="form-actions d-flex gap-3">
-                            <button type="submit" class="btn btn-agua-blue btn-lg px-4">
-                                <i class="fas fa-save me-2"></i>
-                                Guardar Cambios
+                        <div class="mt-4">
+                            <label for="id_telefono" class="block font-semibold text-agua-dark mb-1 text-xs sm:text-sm">
+                                <i class="fas fa-phone me-2 text-agua-blue"></i> Teléfono
+                            </label>
+                            <input type="tel" class="form-control w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-agua-blue focus:border-transparent transition-all duration-200" id="id_telefono" name="telefono" value="{{ cliente.telefono }}" placeholder="Ej: +1234567890">
+                        </div>
+                        <div class="mt-4">
+                            <label for="id_direccion" class="block font-semibold text-agua-dark mb-1 text-xs sm:text-sm">
+                                <i class="fas fa-map-marker-alt me-2 text-agua-blue"></i> Dirección *
+                            </label>
+                            <textarea class="form-control w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-agua-blue focus:border-transparent transition-all duration-200 resize-none" id="id_direccion" name="direccion" rows="3" required placeholder="Dirección completa del cliente">{{ cliente.direccion }}</textarea>
+                        </div>
+                        <div class="mt-4">
+                            <div class="flex items-center gap-2">
+                                <input class="form-check-input" type="checkbox" id="id_activo" name="activo" {% if cliente.activo %}checked{% endif %}>
+                                <label class="form-check-label font-semibold text-xs sm:text-sm" for="id_activo">
+                                    <i class="fas fa-toggle-on me-2 text-success"></i> Cliente Activo
+                                </label>
+                            </div>
+                            <small class="text-gray-400 block mt-1">Desmarcar para deshabilitar el cliente sin eliminarlo</small>
+                        </div>
+                        <div class="form-actions flex flex-col sm:flex-row gap-3 mt-6">
+                            <button type="submit" class="btn-agua-blue w-full sm:w-auto px-4 py-3 text-base font-semibold flex items-center justify-center">
+                                <i class="fas fa-save me-2"></i> Guardar Cambios
                             </button>
-                            <a href="{% url 'clientes:detalle_cliente' cliente.pk %}" class="btn btn-outline-secondary btn-lg px-4">
-                                <i class="fas fa-times me-2"></i>
-                                Cancelar
+                            <a href="{% url 'clientes:detalle_cliente' cliente.pk %}" class="btn bg-gray-200 text-agua-dark w-full sm:w-auto px-4 py-3 rounded-lg font-semibold flex items-center justify-center hover:bg-gray-300 transition">
+                                <i class="fas fa-times me-2"></i> Cancelar
                             </a>
                         </div>
                     </form>
                 </div>
             </div>
-        </div>
-
-        <!-- Panel lateral con información -->
-        <div class="col-md-4">
-            <!-- Información actual -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-agua-light">
-                    <h6 class="mb-0 text-agua-dark fw-semibold">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Información Actual
+            <!-- Panel lateral con información -->
+            <div>
+                <div class="bg-agua-light rounded-xl shadow-sm mb-4 p-4">
+                    <h6 class="mb-4 text-agua-dark font-bold flex items-center text-base">
+                        <i class="fas fa-info-circle me-2"></i> Información Actual
                     </h6>
-                </div>
-                <div class="card-body">
-                    <div class="current-info">
-                        <div class="info-row mb-3">
-                            <label>Cliente:</label>
-                            <div class="d-flex align-items-center">
-                                <div class="mini-avatar me-2">
-                                    {{ cliente.nombre|first }}{{ cliente.apellido|first }}
-                                </div>
-                                <span class="fw-semibold">{{ cliente.nombre }} {{ cliente.apellido }}</span>
-                            </div>
+                    <div class="current-info space-y-3">
+                        <div class="flex items-center gap-2">
+                            <div class="mini-avatar flex items-center justify-center">{{ cliente.nombre|first }}{{ cliente.apellido|first }}</div>
+                            <span class="font-semibold">{{ cliente.nombre }} {{ cliente.apellido }}</span>
                         </div>
-                        <div class="info-row mb-3">
-                            <label>ID:</label>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-semibold text-gray-500 uppercase">ID:</span>
                             <span>#{{ cliente.id|stringformat:"04d" }}</span>
                         </div>
-                        <div class="info-row mb-3">
-                            <label>Estado:</label>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-semibold text-gray-500 uppercase">Estado:</span>
                             {% if cliente.activo %}
-                                <span class="badge bg-success">Activo</span>
+                                <span class="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold">Activo</span>
                             {% else %}
-                                <span class="badge bg-warning">Inactivo</span>
+                                <span class="inline-block bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold">Inactivo</span>
                             {% endif %}
                         </div>
-                        <div class="info-row">
-                            <label>Deuda:</label>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-semibold text-gray-500 uppercase">Deuda:</span>
                             {% if cliente.debe_total > 0 %}
-                                <span class="text-warning fw-bold">{{ cliente.debe_total }} bot.</span>
+                                <span class="text-yellow-700 font-bold">{{ cliente.debe_total }} bot.</span>
                             {% else %}
-                                <span class="text-success">Al día</span>
+                                <span class="text-green-700 font-bold">Al día</span>
                             {% endif %}
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Acciones rápidas -->
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-light">
-                    <h6 class="mb-0 text-dark fw-semibold">
-                        <i class="fas fa-bolt me-2"></i>
-                        Acciones Rápidas
+                <!-- Acciones rápidas -->
+                <div class="bg-white rounded-xl shadow-sm p-4">
+                    <h6 class="mb-4 text-agua-dark font-bold flex items-center text-base">
+                        <i class="fas fa-bolt me-2"></i> Acciones Rápidas
                     </h6>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="{% url 'clientes:detalle_cliente' cliente.pk %}" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-history me-2"></i>
-                            Ver Historial Completo
+                    <div class="flex flex-col gap-2">
+                        <a href="{% url 'clientes:detalle_cliente' cliente.pk %}" class="btn bg-agua-light text-agua-dark font-semibold flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-agua-blue hover:text-white transition">
+                            <i class="fas fa-history me-2"></i> Ver Historial Completo
                         </a>
-                        <a href="{% url 'clientes:nuevo_despacho' %}" class="btn btn-outline-success btn-sm">
-                            <i class="fas fa-plus me-2"></i>
-                            Nuevo Despacho
+                        <a href="{% url 'clientes:nuevo_despacho' %}" class="btn bg-green-100 text-green-800 font-semibold flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-green-200 transition">
+                            <i class="fas fa-plus me-2"></i> Nuevo Despacho
                         </a>
-                        <a href="{% url 'clientes:toggle_cliente_status' cliente.pk %}" 
-                           class="btn btn-outline-warning btn-sm"
-                           onclick="return confirm('¿Cambiar estado del cliente?')">
-                            <i class="fas fa-toggle-off me-2"></i>
-                            {% if cliente.activo %}Deshabilitar{% else %}Habilitar{% endif %}
+                        <a href="{% url 'clientes:toggle_cliente_status' cliente.pk %}"
+                           class="btn bg-yellow-100 text-yellow-800 font-semibold flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-yellow-200 transition"
+                           onclick="return showConfirmEstado(this, event)">
+                            <i class="fas fa-toggle-off me-2"></i> {% if cliente.activo %}Deshabilitar{% else %}Habilitar{% endif %}
                         </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+<!-- Modal de confirmación para cambiar estado -->
+<div id="confirm-estado-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+  <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-sm">
+    <div class="flex items-center mb-4">
+      <div class="bg-yellow-400 text-white rounded-full p-2 mr-3">
+        <i class="fas fa-exclamation-triangle text-xl"></i>
+      </div>
+      <h3 class="text-lg font-bold text-yellow-700" id="confirm-estado-title">Confirmar acción</h3>
+    </div>
+    <p class="text-gray-700 mb-6" id="confirm-estado-message">¿Estás seguro de que deseas cambiar el estado de este cliente?</p>
+    <div class="flex justify-end gap-2">
+      <button onclick="closeConfirmEstado()" class="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300">Cancelar</button>
+      <a id="confirm-estado-accept" href="#" class="px-4 py-2 rounded bg-yellow-400 text-white hover:bg-yellow-600 font-semibold transition">Sí, continuar</a>
+    </div>
+  </div>
 </div>
 
 <!-- Estilos específicos -->
@@ -357,5 +295,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+function showConfirmEstado(link, event) {
+  event.preventDefault();
+  const modal = document.getElementById('confirm-estado-modal');
+  const acceptBtn = document.getElementById('confirm-estado-accept');
+  acceptBtn.href = link.href;
+  modal.classList.remove('hidden');
+  return false;
+}
+function closeConfirmEstado() {
+  document.getElementById('confirm-estado-modal').classList.add('hidden');
+}
 </script>
 {% endblock %}

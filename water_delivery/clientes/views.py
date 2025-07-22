@@ -10,7 +10,52 @@ from django.db.models import Q
 from datetime import date, datetime
 import json
 from .models import Cliente, Despacho
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
+from django.contrib import messages
 
+# Decorador para empresa
+
+def solo_empresa(view_func):
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'empresa':
+            return acceso_denegado_conductor(request)
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+# Decorador para conductor
+
+def solo_conductor(view_func):
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'conductor':
+            return acceso_denegado_conductor(request)
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+def acceso_denegado_conductor(request):
+    messages.error(request, 'No tienes permiso para acceder a esta página.')
+    return redirect('clientes:nuevo_despacho')
+
+# --- PROTECCIÓN DE VISTAS SEGÚN ROL ---
+
+def solo_empresa_o_api_despacho(view_func):
+    def _wrapped_view(request, *args, **kwargs):
+        if hasattr(request.user, 'tipo_usuario') and request.user.tipo_usuario == 'conductor':
+            return acceso_denegado_conductor(request)
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+def empresa_o_conductor(view_func):
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) not in ['empresa', 'conductor']:
+            return acceso_denegado_conductor(request)
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+# --- VISTAS Y APIS ---
+
+@solo_empresa
+@login_required
 def dashboard(request):
     """Vista para el panel de control principal"""
     total_clientes = Cliente.objects.filter(activo=True).count()
@@ -23,11 +68,20 @@ def dashboard(request):
         'despachos_pendientes': despachos_pendientes,
     })
 
+@solo_empresa
+@login_required
 def dashboard_despachos(request):
     """Nueva vista para el dashboard de despachos diarios"""
     return render(request, 'clientes/despacho_nuevo.html')
 
-# APIs para el dashboard de despachos - NO TOCAR
+@empresa_o_conductor
+@login_required
+def nuevo_despacho(request):
+    """Vista para el dashboard de despachos diarios"""
+    return render(request, 'clientes/nuevo_despacho.html')
+
+# APIs necesarias para ambos roles
+@login_required
 def api_clientes_activos(request):
     """API para obtener lista de clientes activos"""
     clientes = Cliente.objects.filter(activo=True).values(
@@ -45,6 +99,7 @@ def api_clientes_activos(request):
     
     return JsonResponse({'clientes': clientes_list})
 
+@login_required
 def api_despachos_hoy(request):
     """API para obtener despachos del día actual"""
     hoy = date.today()
@@ -68,6 +123,7 @@ def api_despachos_hoy(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
+@login_required
 def api_crear_despacho(request):
     """API para crear un nuevo despacho"""
     try:
@@ -109,8 +165,9 @@ def api_crear_despacho(request):
             'message': f'Error al crear despacho: {str(e)}'
         }, status=400)
 
-@csrf_exempt
-@require_http_methods(["POST"])
+# El resto solo empresa
+@empresa_o_conductor
+@login_required
 def api_crear_cliente(request):
     """API para crear un nuevo cliente"""
     try:
@@ -154,6 +211,8 @@ def api_crear_cliente(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
+@solo_empresa
+@login_required
 def api_eliminar_despacho(request, despacho_id):
     """API para eliminar un despacho"""
     try:
@@ -180,6 +239,8 @@ def api_eliminar_despacho(request, despacho_id):
 
 @csrf_exempt
 @require_http_methods(["POST"])
+@empresa_o_conductor
+@login_required
 def api_marcar_entregado(request, despacho_id):
     """API para marcar un despacho como entregado"""
     try:
@@ -208,6 +269,10 @@ class ClienteListView(ListView):
     model = Cliente
     template_name = "clientes/lista_clientes.html"
     context_object_name = "clientes"
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'empresa':
+            return acceso_denegado_conductor(request)
+        return super().dispatch(request, *args, **kwargs)
     
     def get_queryset(self):
         # MOSTRAR TODOS LOS CLIENTES (activos e inactivos)
@@ -226,12 +291,20 @@ class ClienteCreateView(CreateView):
     fields = ["nombre", "apellido", "direccion", "telefono"]
     template_name = "clientes/nuevo_cliente.html"
     success_url = reverse_lazy('clientes:lista_clientes')
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'empresa':
+            return acceso_denegado_conductor(request)
+        return super().dispatch(request, *args, **kwargs)
 
 class ClienteUpdateView(UpdateView):
     model = Cliente
     fields = ["nombre", "apellido", "direccion", "telefono", "activo"]
     template_name = "clientes/editar_cliente.html"
     success_url = reverse_lazy('clientes:lista_clientes')
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'empresa':
+            return acceso_denegado_conductor(request)
+        return super().dispatch(request, *args, **kwargs)
     
     def post(self, request, *args, **kwargs):
         # Manejar desactivación desde la lista
@@ -246,6 +319,10 @@ class ClienteDetailView(DetailView):
     model = Cliente
     template_name = "clientes/detalle_cliente.html"
     context_object_name = "cliente"
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'empresa':
+            return acceso_denegado_conductor(request)
+        return super().dispatch(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -267,7 +344,11 @@ class ClienteDetailView(DetailView):
         
         return context
 
+@empresa_o_conductor
+@login_required
 def marcar_entregado(request, pk):
+    if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'empresa':
+        return acceso_denegado_conductor(request)
     despacho = get_object_or_404(Despacho, pk=pk)
     if not despacho.entregado:
         despacho.entregado = True
@@ -281,6 +362,10 @@ class DespachoCreateView(CreateView):
     fields = ["cliente", "cantidad_botellones", "notas"]
     template_name = "clientes/nuevo_despacho.html"
     success_url = reverse_lazy('clientes:lista_clientes')
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) not in ['empresa', 'conductor']:
+            return acceso_denegado_conductor(request)
+        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -292,6 +377,8 @@ class DespachoCreateView(CreateView):
 # NUEVAS FUNCIONES PARA HABILITAR/DESHABILITAR
 @login_required
 def toggle_cliente_status(request, pk):
+    if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'empresa':
+        return acceso_denegado_conductor(request)
     """Alternar estado activo/inactivo del cliente"""
     cliente = get_object_or_404(Cliente, pk=pk)
     cliente.activo = not cliente.activo
@@ -302,11 +389,15 @@ def toggle_cliente_status(request, pk):
     
     return redirect('clientes:lista_clientes')
 
+@empresa_o_conductor
+@login_required
 def historial_despachos(request):
     """Vista para mostrar el historial de despachos de los últimos 10 días"""
     return render(request, 'clientes/historial_despachos.html')
 
 def api_despachos_recientes(request):
+    if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'empresa':
+        return acceso_denegado_conductor(request)
     """API para obtener despachos de los últimos 10 días"""
     from datetime import datetime, timedelta
     from django.db.models import F

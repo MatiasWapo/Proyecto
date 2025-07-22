@@ -15,25 +15,31 @@
             <!-- Navegación principal (Desktop) -->
             <div class="hidden md:block">
                 <div class="ml-10 flex items-baseline space-x-4">
-                    <!-- Todos los Clientes -->
-                    <a href="{% url 'clientes:lista_clientes' %}" 
-                       class="nav-link {% if request.resolver_match.url_name == 'lista_clientes' %}active{% endif %}">
-                        <i class="fas fa-users mr-2"></i>
-                        Todos los Clientes
-                    </a>
-                    
-                    <!-- Despachos -->
-                    <a href="{% url 'clientes:nuevo_despacho' %}" 
-                       class="nav-link {% if request.resolver_match.url_name == 'nuevo_despacho' %}active{% endif %}">
-                        <i class="fas fa-truck mr-2"></i>
-                        Despachos
-                    </a>
-                    <!-- Agregar este enlace junto a los otros enlaces de navegación -->
-                    <a href="{% url 'clientes:historial_despachos' %}" 
-                    class="nav-link {% if request.resolver_match.url_name == 'historial_despachos' %}active{% endif %}">
-                        <i class="fas fa-history mr-2"></i>
-                        Historial
-                    </a>
+                    {% if user.is_authenticated and user.tipo_usuario == 'conductor' %}
+                        <!-- Solo para conductor -->
+                        <a href="{% url 'clientes:nuevo_despacho' %}"
+                           class="nav-link {% if request.resolver_match.url_name == 'nuevo_despacho' %}active{% endif %}">
+                            <i class="fas fa-truck mr-2"></i>
+                            Despachos
+                        </a>
+                    {% else %}
+                        <!-- Para empresa -->
+                        <a href="{% url 'clientes:lista_clientes' %}"
+                           class="nav-link {% if request.resolver_match.url_name == 'lista_clientes' %}active{% endif %}">
+                            <i class="fas fa-users mr-2"></i>
+                            Todos los Clientes
+                        </a>
+                        <a href="{% url 'clientes:nuevo_despacho' %}"
+                           class="nav-link {% if request.resolver_match.url_name == 'nuevo_despacho' %}active{% endif %}">
+                            <i class="fas fa-truck mr-2"></i>
+                            Despachos
+                        </a>
+                        <a href="{% url 'clientes:historial_despachos' %}"
+                           class="nav-link {% if request.resolver_match.url_name == 'historial_despachos' %}active{% endif %}">
+                            <i class="fas fa-history mr-2"></i>
+                            Historial
+                        </a>
+                    {% endif %}
                 </div>
             </div>
 
@@ -89,25 +95,29 @@
     <!-- Menú móvil -->
     <div class="mobile-menu md:hidden hidden" id="mobile-menu">
         <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50 border-t border-gray-200">
-            
-            <!-- Todos los Clientes (Móvil) -->
-            <a href="{% url 'clientes:lista_clientes' %}" 
-               class="mobile-nav-link {% if request.resolver_match.url_name == 'lista_clientes' %}active{% endif %}">
-                <i class="fas fa-users mr-3"></i>
-                Todos los Clientes
-            </a>
-            
-            <!-- Despachos (Móvil) -->
-            <a href="{% url 'clientes:nuevo_despacho' %}" 
-               class="mobile-nav-link {% if request.resolver_match.url_name == 'nuevo_despacho' %}active{% endif %}">
-                <i class="fas fa-truck mr-3"></i>
-                Despachos
-            </a>
-            <a href="{% url 'clientes:historial_despachos' %}" 
-            class="mobile-nav-link {% if request.resolver_match.url_name == 'historial_despachos' %}active{% endif %}">
-                <i class="fas fa-history mr-3"></i>
-                Historial
-            </a>
+            {% if user.is_authenticated and user.tipo_usuario == 'conductor' %}
+                <a href="{% url 'clientes:nuevo_despacho' %}"
+                   class="mobile-nav-link {% if request.resolver_match.url_name == 'nuevo_despacho' %}active{% endif %}">
+                    <i class="fas fa-truck mr-3"></i>
+                    Despachos
+                </a>
+            {% else %}
+                <a href="{% url 'clientes:lista_clientes' %}"
+                   class="mobile-nav-link {% if request.resolver_match.url_name == 'lista_clientes' %}active{% endif %}">
+                    <i class="fas fa-users mr-3"></i>
+                    Todos los Clientes
+                </a>
+                <a href="{% url 'clientes:nuevo_despacho' %}"
+                   class="mobile-nav-link {% if request.resolver_match.url_name == 'nuevo_despacho' %}active{% endif %}">
+                    <i class="fas fa-truck mr-3"></i>
+                    Despachos
+                </a>
+                <a href="{% url 'clientes:historial_despachos' %}"
+                   class="mobile-nav-link {% if request.resolver_match.url_name == 'historial_despachos' %}active{% endif %}">
+                    <i class="fas fa-history mr-3"></i>
+                    Historial
+                </a>
+            {% endif %}
 
             <!-- Sección de usuario móvil -->
             <div class="border-t border-gray-300 pt-3 mt-3">
