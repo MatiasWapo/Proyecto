@@ -13,6 +13,7 @@ from .models import Cliente, Despacho
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.contrib import messages
+from django.utils import timezone
 
 # Decorador para empresa
 
@@ -114,7 +115,7 @@ def api_despachos_hoy(request):
             'cliente': f"{despacho.cliente.nombre} {despacho.cliente.apellido}",
             'direccion': despacho.cliente.direccion,
             'cantidad': despacho.cantidad_botellones,
-            'hora': despacho.fecha.strftime('%H:%M'),
+            'hora': timezone.localtime(despacho.fecha).strftime('%H:%M'),
             'notas': despacho.notas or '',
             'entregado': despacho.entregado
         })
@@ -409,10 +410,10 @@ def api_despachos_recientes(request):
     
     despachos_por_dia = {}
     for despacho in despachos:
-        fecha_str = despacho.fecha.strftime('%Y-%m-%d')
+        fecha_str = timezone.localtime(despacho.fecha).strftime('%Y-%m-%d')
         if fecha_str not in despachos_por_dia:
             despachos_por_dia[fecha_str] = {
-                'fecha': despacho.fecha.strftime('%d/%m/%Y'),  # Formato día/mes/año
+                'fecha': timezone.localtime(despacho.fecha).strftime('%d/%m/%Y'),  # Formato día/mes/año
                 'total_botellones': 0,
                 'total_despachos': 0,
                 'despachos': []
@@ -425,7 +426,7 @@ def api_despachos_recientes(request):
             'cliente': f"{despacho.cliente.nombre} {despacho.cliente.apellido}",
             'direccion': despacho.cliente.direccion,
             'cantidad': despacho.cantidad_botellones,
-            'hora': despacho.fecha.strftime('%H:%M'),
+            'hora': timezone.localtime(despacho.fecha).strftime('%H:%M'),
             'notas': despacho.notas or '',
             'entregado': despacho.entregado
         })

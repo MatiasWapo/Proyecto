@@ -144,7 +144,7 @@
                             <td class="ps-4 py-3">
                                 <div class="date-info">
                                     <div class="fw-semibold">{{ despacho.fecha|date:"d/m/Y" }}</div>
-                                    <small class="text-muted">{{ despacho.fecha|date:"H:i" }}</small>
+                                    <small class="text-muted">{{ despacho.fecha|localtime|date:"H:i" }}</small>
                                 </div>
                             </td>
                             <td class="py-3">
@@ -200,7 +200,7 @@
                     <div class="flex justify-between items-center mb-2">
                         <div>
                             <div class="font-semibold text-gray-900">{{ despacho.fecha|date:"d/m/Y" }}</div>
-                            <div class="text-xs text-gray-500">{{ despacho.fecha|date:"H:i" }}</div>
+                            <div class="text-xs text-gray-500">{{ despacho.fecha|localtime|date:"H:i" }}</div>
                         </div>
                         <span class="quantity-badge">
                             <i class="fas fa-bottle-water me-1"></i>
@@ -240,16 +240,18 @@
                 {% endfor %}
             </div>
             {% else %}
-            <div class="empty-state text-center py-5">
+            <div class="empty-state text-center pt-16 pb-5 mt-8">
                 <div class="empty-icon mb-4">
                     <i class="fas fa-inbox"></i>
                 </div>
                 <h5 class="text-muted mb-3">Sin historial de despachos</h5>
                 <p class="text-muted">Este cliente aún no tiene registros de pedidos.</p>
-                <a href="{% url 'clientes:nuevo_despacho' %}" class="btn btn-agua-blue">
-                    <i class="fas fa-plus me-1"></i>
-                    Crear Primer Despacho
-                </a>
+                <div class="flex justify-center mt-8">
+                    <a href="{% url 'clientes:nuevo_despacho' %}" class="btn btn-agua-blue">
+                        <i class="fas fa-plus me-1"></i>
+                        Crear Primer Despacho
+                    </a>
+                </div>
             </div>
             {% endif %}
         </div>

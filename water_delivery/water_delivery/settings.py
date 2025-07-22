@@ -98,7 +98,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 LANGUAGE_CODE = 'es-es'  # Cambiado a español
-TIME_ZONE = 'America/Argentina/Buenos_Aires'  # Ajusta según tu zona horaria
+TIME_ZONE = 'America/Caracas'
 USE_I18N = True
 USE_TZ = True
 

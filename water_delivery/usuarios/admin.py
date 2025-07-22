@@ -4,7 +4,10 @@ from .models import Usuario
 
 class UsuarioAdmin(UserAdmin):
     # Lista de campos a mostrar en la tabla principal
-    list_display = ('username', 'email', 'tipo_usuario', 'camion_asignado', 'get_pregunta_1_display', 'get_pregunta_2_display')
+    list_display = ('username', 'email', 'tipo_usuario', 'is_active', 'is_superuser', 'camion_asignado')
+    list_filter = ('tipo_usuario', 'is_active', 'is_superuser')
+    search_fields = ('username', 'email', 'tipo_usuario')
+    ordering = ('-is_superuser', '-is_active', 'username')
     
     # Campos para la edición detallada
     fieldsets = UserAdmin.fieldsets + (
@@ -14,10 +17,6 @@ class UsuarioAdmin(UserAdmin):
                 'telefono',
                 'direccion',
                 'camion_asignado',
-                'pregunta_1',  # Cambiado de pregunta_seguridad_1
-                'respuesta_1',  # Cambiado de respuesta_seguridad_1
-                'pregunta_2',  # Cambiado de pregunta_seguridad_2
-                'respuesta_2'   # Cambiado de respuesta_seguridad_2
             ),
         }),
     )
