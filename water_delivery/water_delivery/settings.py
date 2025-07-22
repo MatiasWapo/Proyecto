@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'clientes',
     'usuarios',
+    'widget_tweaks',
 ] 
 
 # Crispy Forms Config

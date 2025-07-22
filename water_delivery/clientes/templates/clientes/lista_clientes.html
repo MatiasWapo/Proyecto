@@ -101,15 +101,16 @@
                         <table class="table table-hover align-middle mb-0 modern-table w-full">
                             <thead class="table-header">
                                 <tr>
-                                    <th class="ps-4 py-3">Cliente</th>
-                                    <th class="py-3">Contacto</th>
-                                    <th class="py-3">Dirección</th>
-                                    <th class="text-center py-3">Estado</th>
-                                    <th class="text-center py-3">Acciones</th>
+                                    <th class="px-4 py-3 text-center font-bold text-agua-dark text-base font-sans tracking-wide">CLIENTE</th>
+                                    <th class="px-4 py-3 text-center font-bold text-agua-dark text-base font-sans tracking-wide">CONTACTO</th>
+                                    <th class="px-4 py-3 text-center font-bold text-agua-dark text-base font-sans tracking-wide">DIRECCIÓN</th>
+                                    <th class="px-4 py-3 text-center font-bold text-agua-dark text-base font-sans tracking-wide">ESTADO</th>
+                                    <th class="px-4 py-3 text-center font-bold text-agua-dark text-base font-sans tracking-wide">ACCIONES</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for cliente in clientes %}
+                                {% for info in clientes_info %}
+                                    {% with cliente=info.obj %}
                                 <tr class="client-row {% if cliente.debe_total > 0 %}debt-row{% endif %} {% if not cliente.activo %}inactive-row{% endif %} rounded-lg mb-2 shadow-sm border border-gray-200">
                                     <td class="ps-2 sm:ps-4 py-3 align-top">
                                         <div class="d-flex align-items-center">
@@ -140,29 +141,29 @@
                                             </span>
                                         {% endif %}
                                     </td>
-                                    <td class="py-3 align-top">
-                                        <div class="address-text text-xs sm:text-sm">
-                                            <i class="fas fa-map-marker-alt me-2 text-agua-blue"></i>
-                                            {{ cliente.direccion|truncatechars:35 }}
-                                        </div>
+                                    <td class="py-3 text-center align-middle">
+                                        <span class="text-base font-sans">{{ cliente.direccion }}</span>
                                     </td>
-                                    <td class="text-center py-3 align-top">
-                                        {% if not cliente.activo %}
-                                            <span class="status-badge inactive-badge text-xs sm:text-sm">
-                                                <i class="fas fa-pause-circle me-1"></i>
-                                                Inactivo
-                                            </span>
-                                        {% elif cliente.debe_total > 0 %}
-                                            <span class="status-badge debt-badge text-xs sm:text-sm">
-                                                <i class="fas fa-exclamation-triangle me-1"></i>
-                                                {{ cliente.debe_total }} bot.
-                                            </span>
-                                        {% else %}
-                                            <span class="status-badge success-badge text-xs sm:text-sm">
-                                                <i class="fas fa-check-circle me-1"></i>
-                                                Al día
-                                            </span>
-                                        {% endif %}
+                                    <td class="py-3 flex flex-col items-center justify-center text-center align-middle">
+                                        <span class="deuda-botellones flex items-center gap-1 font-bold text-base font-sans tracking-wide {% if info.botellones_color == 'red' %}text-red-600{% elif info.botellones_color == 'green' %}text-green-600{% else %}text-gray-600{% endif %}">
+                                            {% if info.botellones_color == 'red' %}
+                                                <i class="fas fa-exclamation-triangle"></i> Debe {{ info.botellones }} botellones
+                                            {% elif info.botellones_color == 'green' %}
+                                                <i class="fas fa-bottle-water"></i> Saldo a favor {{ info.botellones }} botellones
+                                            {% else %}
+                                                <i class="fas fa-check-circle"></i> 0 botellones
+                                            {% endif %}
+                                        </span>
+                                        <br>
+                                        <span class="deuda-saldo font-semibold text-base font-sans tracking-wide">
+                                            {% if cliente.saldo > 0 %}
+                                                <span class="text-red-600">Debe ${{ cliente.saldo|floatformat:2 }}</span>
+                                            {% elif cliente.saldo < 0 %}
+                                                <span class="text-green-600">Saldo a favor ${{ cliente.saldo|floatformat:2|slice:"1:" }}</span>
+                                            {% else %}
+                                                <span class="text-gray-600">Al día</span>
+                                            {% endif %}
+                                        </span>
                                     </td>
                                     <td class="text-center py-3 align-top">
                                         <div class="action-buttons flex flex-row sm:flex-col gap-2 justify-center items-center">
@@ -188,6 +189,7 @@
                                         </div>
                                     </td>
                                 </tr>
+                                {% endwith %}
                                 {% endfor %}
                             </tbody>
                         </table>

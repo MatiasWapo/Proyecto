@@ -44,6 +44,23 @@
     </div>
 </div>
 
+<!-- Modal de confirmación para marcar como entregado -->
+<div id="confirm-entregar-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+  <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-sm">
+    <div class="flex items-center mb-4">
+      <div class="bg-green-500 text-white rounded-full p-2 mr-3">
+        <i class="fas fa-check-circle text-xl"></i>
+      </div>
+      <h3 class="text-lg font-bold text-green-700">Confirmar entrega</h3>
+    </div>
+    <p class="text-gray-700 mb-6" id="confirm-entregar-message">¿Estás seguro de marcar este despacho como entregado?</p>
+    <div class="flex justify-end gap-2">
+      <button onclick="closeConfirmEntregar()" class="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300">Cancelar</button>
+      <button id="confirm-entregar-accept" class="px-4 py-2 rounded bg-green-500 text-white hover:bg-green-700 font-semibold transition">Sí, marcar</button>
+    </div>
+  </div>
+</div>
+
 <!-- JavaScript -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -98,6 +115,23 @@ function loadHistorial() {
                                                 <i class="fas fa-sticky-note mr-1"></i>${despacho.notas}
                                             </p>
                                         ` : ''}
+                                    </div>
+                                    <div class="flex items-center">
+                                        ${despacho.entregado ? `
+                                            <button onclick="showConfirmEntregar(${despacho.id})" 
+                                                    class="text-green-600 hover:text-green-800 mr-2">
+                                                <i class="fas fa-check-circle"></i>
+                                            </button>
+                                        ` : `
+                                            <button onclick="showConfirmEntregar(${despacho.id})" 
+                                                    class="text-agua-blue hover:text-agua-blue-dark mr-2">
+                                                <i class="fas fa-check-circle"></i>
+                                            </button>
+                                        `}
+                                        <button onclick="marcarEntregado(${despacho.id}, true)" 
+                                                class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-times-circle"></i>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -155,6 +189,47 @@ function showMessage(message, type) {
     setTimeout(() => {
         toast.remove();
     }, 3000);
+}
+
+let despachoAEntregar = null;
+function showConfirmEntregar(id) {
+    despachoAEntregar = id;
+    document.getElementById('confirm-entregar-modal').classList.remove('hidden');
+}
+function closeConfirmEntregar() {
+    despachoAEntregar = null;
+    document.getElementById('confirm-entregar-modal').classList.add('hidden');
+}
+document.getElementById('confirm-entregar-accept').onclick = function() {
+    if (despachoAEntregar) {
+        marcarEntregado(despachoAEntregar, true);
+        closeConfirmEntregar();
+    }
+};
+
+async function marcarEntregado(id, confirmado) {
+    if (!confirmado) {
+        showConfirmEntregar(id);
+        return;
+    }
+    try {
+        const response = await fetch("/clientes/api/marcar-entregado/" + id + "/", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        });
+        const data = await response.json();
+        if (data.success) {
+            showMessage('Despacho marcado como entregado', 'success');
+            loadHistorial();
+        } else {
+            showMessage(data.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showMessage('Error al marcar como entregado', 'error');
+    }
 }
 </script>
 {% endblock %}

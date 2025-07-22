@@ -18,24 +18,26 @@
                 </div>
             </div>
             <!-- Centro: Resumen del día -->
-            <div class="flex justify-center items-center flex-1 order-3 md:order-2">
+            {% if user.is_authenticated %}
+              <div class="flex-1 flex justify-center items-center">
                 <div id="resumen-dia-header" class="bg-white bg-opacity-80 rounded-xl shadow px-4 py-2 flex flex-col sm:flex-row items-center gap-2 sm:gap-4 border border-agua-blue">
-                    <span class="flex items-center gap-1 text-agua-dark font-semibold text-xs sm:text-sm">
-                        <i class="fas fa-truck text-agua-blue"></i>
-                        <span id="header-total-despachos">-</span> despachos hoy
-                    </span>
-                    <span class="hidden sm:block text-gray-300">|</span>
-                    <span class="flex items-center gap-1 text-agua-dark font-semibold text-xs sm:text-sm">
-                        <i class="fas fa-tint text-agua-blue"></i>
-                        <span id="header-total-botellones">-</span> botellones
-                    </span>
-                    <span class="hidden sm:block text-gray-300">|</span>
-                    <span class="flex items-center gap-1 text-agua-dark font-semibold text-xs sm:text-sm">
-                        <i class="fas fa-users text-agua-blue"></i>
-                        <span id="header-total-clientes">-</span> clientes activos
-                    </span>
+                  <span class="flex items-center gap-1 text-agua-dark font-semibold text-xs sm:text-sm">
+                    <i class="fas fa-truck text-agua-blue"></i>
+                    <span id="header-total-despachos">-</span> despachos hoy
+                  </span>
+                  <span class="hidden sm:block text-gray-300">|</span>
+                  <span class="flex items-center gap-1 text-agua-dark font-semibold text-xs sm:text-sm">
+                    <i class="fas fa-tint text-agua-blue"></i>
+                    <span id="header-total-botellones">-</span> botellones
+                  </span>
+                  <span class="hidden sm:block text-gray-300">|</span>
+                  <span class="flex items-center gap-1 text-agua-dark font-semibold text-xs sm:text-sm">
+                    <i class="fas fa-users text-agua-blue"></i>
+                    <span id="header-total-clientes">-</span> clientes activos
+                  </span>
                 </div>
-            </div>
+              </div>
+            {% endif %}
             <!-- Derecha: Estado, soporte y hora -->
             <div class="flex flex-col md:items-end gap-2 order-2 md:order-3 min-w-fit">
                 <div class="flex flex-row md:flex-col items-center md:items-end gap-2 md:gap-1">

@@ -11,7 +11,10 @@ urlpatterns = [
     path('editar/<int:pk>/', ClienteUpdateView.as_view(), name='editar_cliente'),
     path('despacho/nuevo/', DespachoCreateView.as_view(), name='nuevo_despacho'),
     path('despacho/<int:pk>/entregado/', marcar_entregado, name='marcar_entregado'),
+    path('despacho/<int:pk>/pendiente/', marcar_pendiente, name='marcar_pendiente'),
+    path('despacho/<int:pk>/eliminar/', eliminar_despacho, name='eliminar_despacho'),
     path('toggle-status/<int:pk>/', toggle_cliente_status, name='toggle_cliente_status'),
+    path('registrar-pago/<int:cliente_id>/', registrar_pago, name='registrar_pago'),
     
     # URLs del dashboard
     path('dashboard-despachos/', dashboard_despachos, name='dashboard_despachos'),

@@ -4,16 +4,18 @@ from django.urls import reverse_lazy
 from django.db.models import Sum
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_http_methods, require_POST
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from datetime import date, datetime
 import json
-from .models import Cliente, Despacho
+from .models import Cliente, Despacho, Pago
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.contrib import messages
 from django.utils import timezone
+from decimal import Decimal
+from django.db import models
 
 # Decorador para empresa
 
@@ -132,21 +134,22 @@ def api_crear_despacho(request):
         cliente_id = data.get('cliente_id')
         cantidad = int(data.get('cantidad', 1))
         notas = data.get('notas', '')
-        
         # Validar que el cliente existe
         cliente = get_object_or_404(Cliente, id=cliente_id, activo=True)
-        
+        # Tomar el precio del cliente
+        precio = cliente.precio_botellon
+        total = precio * cantidad
         # Crear el despacho
         despacho = Despacho.objects.create(
             cliente=cliente,
             cantidad_botellones=cantidad,
-            notas=notas
+            notas=notas,
+            precio_unitario=precio,
+            total=total
         )
-        
-        # Actualizar la deuda del cliente MANUALMENTE
-        cliente.debe_total += cantidad
+        # Sumar el total al saldo del cliente
+        cliente.saldo += total
         cliente.save()
-        
         return JsonResponse({
             'success': True,
             'message': 'Despacho creado exitosamente',
@@ -154,12 +157,11 @@ def api_crear_despacho(request):
                 'id': despacho.id,
                 'cliente': f"{cliente.nombre} {cliente.apellido}",
                 'cantidad': cantidad,
-                'hora': despacho.fecha.strftime('%H:%M'),
+                'hora': timezone.localtime(despacho.fecha).strftime('%H:%M'),
                 'notas': notas,
                 'entregado': despacho.entregado
             }
         })
-        
     except Exception as e:
         return JsonResponse({
             'success': False,
@@ -218,20 +220,15 @@ def api_eliminar_despacho(request, despacho_id):
     """API para eliminar un despacho"""
     try:
         despacho = get_object_or_404(Despacho, id=despacho_id)
-        
-        # Si el despacho no estaba entregado, restar de la deuda
-        if not despacho.entregado:
-            cliente = despacho.cliente
-            cliente.debe_total -= despacho.cantidad_botellones
-            cliente.save()
-        
+        cliente = despacho.cliente
+        # Restar el total del despacho al saldo del cliente
+        cliente.saldo -= despacho.total
+        cliente.save()
         despacho.delete()
-        
         return JsonResponse({
             'success': True,
             'message': 'Despacho eliminado exitosamente'
         })
-        
     except Exception as e:
         return JsonResponse({
             'success': False,
@@ -246,18 +243,13 @@ def api_marcar_entregado(request, despacho_id):
     """API para marcar un despacho como entregado"""
     try:
         despacho = get_object_or_404(Despacho, id=despacho_id)
-        
         if not despacho.entregado:
             despacho.entregado = True
-            despacho.cliente.debe_total -= despacho.cantidad_botellones
-            despacho.cliente.save()
             despacho.save()
-        
         return JsonResponse({
             'success': True,
             'message': 'Despacho marcado como entregado'
         })
-        
     except Exception as e:
         return JsonResponse({
             'success': False,
@@ -287,9 +279,37 @@ class ClienteListView(ListView):
             )
         return queryset.order_by('-activo', 'nombre')  # Activos primero
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        clientes = context['clientes']
+        clientes_info = []
+        for cliente in clientes:
+            precio = float(cliente.precio_botellon) if cliente.precio_botellon else 2.5
+            saldo = float(cliente.saldo)
+            if precio > 0:
+                if saldo > 0:
+                    botellones = int(round(saldo / precio))
+                    botellones_color = 'red'
+                elif saldo < 0:
+                    botellones = int(round(abs(saldo) / precio))
+                    botellones_color = 'green'
+                else:
+                    botellones = 0
+                    botellones_color = 'gray'
+            else:
+                botellones = 0
+                botellones_color = 'gray'
+            clientes_info.append({
+                'obj': cliente,
+                'botellones': botellones,
+                'botellones_color': botellones_color,
+            })
+        context['clientes_info'] = clientes_info
+        return context
+
 class ClienteCreateView(CreateView):
     model = Cliente
-    fields = ["nombre", "apellido", "direccion", "telefono"]
+    fields = ["nombre", "apellido", "direccion", "telefono", "precio_botellon"]
     template_name = "clientes/nuevo_cliente.html"
     success_url = reverse_lazy('clientes:lista_clientes')
     def dispatch(self, request, *args, **kwargs):
@@ -299,14 +319,13 @@ class ClienteCreateView(CreateView):
 
 class ClienteUpdateView(UpdateView):
     model = Cliente
-    fields = ["nombre", "apellido", "direccion", "telefono", "activo"]
+    fields = ["nombre", "apellido", "direccion", "telefono", "activo", "precio_botellon"]
     template_name = "clientes/editar_cliente.html"
     success_url = reverse_lazy('clientes:lista_clientes')
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'empresa':
             return acceso_denegado_conductor(request)
         return super().dispatch(request, *args, **kwargs)
-    
     def post(self, request, *args, **kwargs):
         # Manejar desactivación desde la lista
         if "activo" in request.POST and request.POST.get("activo") == "false":
@@ -315,6 +334,24 @@ class ClienteUpdateView(UpdateView):
             cliente.save()
             return redirect(self.success_url)
         return super().post(request, *args, **kwargs)
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        cliente = self.object
+        despachos_todos = cliente.despacho_set.all()
+        actualizados = 0
+        for despacho in despachos_todos:
+            despacho.precio_unitario = cliente.precio_botellon
+            despacho.total = despacho.precio_unitario * despacho.cantidad_botellones
+            despacho.save()
+            actualizados += 1
+        # Recalcular saldo
+        total_despachos = despachos_todos.aggregate(total=models.Sum('total'))['total'] or 0
+        total_pagos = cliente.pagos.aggregate(total=models.Sum('monto'))['total'] or 0
+        cliente.saldo = total_despachos - total_pagos
+        cliente.save()
+        if actualizados > 0:
+            messages.success(self.request, f"Se actualizaron {actualizados} despachos al nuevo precio y se recalculó la deuda.")
+        return response
 
 class ClienteDetailView(DetailView):
     model = Cliente
@@ -353,8 +390,6 @@ def marcar_entregado(request, pk):
     despacho = get_object_or_404(Despacho, pk=pk)
     if not despacho.entregado:
         despacho.entregado = True
-        despacho.cliente.debe_total -= despacho.cantidad_botellones
-        despacho.cliente.save()
         despacho.save()
     return redirect('clientes:detalle_cliente', pk=despacho.cliente.pk)
 
@@ -367,12 +402,16 @@ class DespachoCreateView(CreateView):
         if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) not in ['empresa', 'conductor']:
             return acceso_denegado_conductor(request)
         return super().dispatch(request, *args, **kwargs)
-
     def form_valid(self, form):
+        cliente = form.cleaned_data['cliente']
+        precio = cliente.precio_botellon
+        cantidad = form.cleaned_data['cantidad_botellones']
+        total = precio * cantidad
+        form.instance.precio_unitario = precio
+        form.instance.total = total
         response = super().form_valid(form)
-        # Actualizar la deuda manualmente
-        self.object.cliente.debe_total += self.object.cantidad_botellones
-        self.object.cliente.save()
+        cliente.saldo += total
+        cliente.save()
         return response
 
 # NUEVAS FUNCIONES PARA HABILITAR/DESHABILITAR
@@ -389,6 +428,22 @@ def toggle_cliente_status(request, pk):
     # Puedes agregar un mensaje aquí si usas Django messages
     
     return redirect('clientes:lista_clientes')
+
+@require_POST
+@solo_empresa
+@login_required
+def registrar_pago(request, cliente_id):
+    cliente = get_object_or_404(Cliente, id=cliente_id)
+    monto = Decimal(request.POST.get('monto', '0'))
+    observaciones = request.POST.get('observaciones', '')
+    if monto > 0:
+        Pago.objects.create(cliente=cliente, monto=monto, observaciones=observaciones)
+        cliente.saldo -= monto
+        cliente.save()
+        messages.success(request, f'Abono de ${monto:.2f} registrado correctamente.')
+    else:
+        messages.error(request, 'El monto debe ser mayor a 0.')
+    return redirect('clientes:detalle_cliente', pk=cliente.id)
 
 @empresa_o_conductor
 @login_required
@@ -437,3 +492,37 @@ def api_despachos_recientes(request):
         resultado.append(despachos_por_dia[fecha_str])
     
     return JsonResponse({'dias': resultado})
+
+@solo_empresa
+@login_required
+def marcar_pendiente(request, pk):
+    despacho = get_object_or_404(Despacho, pk=pk)
+    if despacho.entregado:
+        despacho.entregado = False
+        despacho.save()
+        # Recalcular saldo del cliente
+        cliente = despacho.cliente
+        despachos = cliente.despacho_set.all()
+        total_despachos = despachos.aggregate(total=models.Sum('total'))['total'] or 0
+        total_pagos = cliente.pagos.aggregate(total=models.Sum('monto'))['total'] or 0
+        cliente.saldo = total_despachos - total_pagos
+        cliente.save()
+        messages.success(request, 'El despacho fue marcado como pendiente.')
+    return redirect('clientes:detalle_cliente', pk=despacho.cliente.pk)
+
+@solo_empresa
+@login_required
+def eliminar_despacho(request, pk):
+    despacho = get_object_or_404(Despacho, pk=pk)
+    cliente = despacho.cliente
+    if request.method == 'POST':
+        despacho.delete()
+        # Recalcular saldo del cliente
+        despachos = cliente.despacho_set.all()
+        total_despachos = despachos.aggregate(total=models.Sum('total'))['total'] or 0
+        total_pagos = cliente.pagos.aggregate(total=models.Sum('monto'))['total'] or 0
+        cliente.saldo = total_despachos - total_pagos
+        cliente.save()
+        messages.success(request, 'Despacho eliminado correctamente.')
+        return redirect('clientes:detalle_cliente', pk=cliente.pk)
+    return redirect('clientes:detalle_cliente', pk=cliente.pk)
