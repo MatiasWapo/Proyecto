@@ -1,3 +1,8 @@
+{# =============================================
+   HEADER GLOBAL
+   =============================================
+   Encabezado con logo, empresa, resumen del día, soporte y hora actual.
+#}
 {% load static %}
 <header class="bg-gradient-to-r from-cyan-500 to-blue-400 shadow-lg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
@@ -83,6 +88,12 @@
   </div>
 </div>
 
+<!-- Toast de notificación para copiar correo -->
+<div id="toast-copiado" class="fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg bg-agua-blue text-white font-semibold flex items-center gap-2 hidden">
+    <i class="fas fa-check-circle"></i>
+    <span>¡Correo copiado al portapapeles!</span>
+</div>
+
 <!-- Estilos adicionales -->
 <style>
     /* Animación para el logo */
@@ -131,7 +142,14 @@ function cerrarSoporteModal() {
 function copiarCorreoSoporte() {
     const correo = document.getElementById('correo-soporte').textContent;
     navigator.clipboard.writeText(correo);
-    alert('Correo copiado al portapapeles');
+    mostrarToastCopiado();
+}
+function mostrarToastCopiado() {
+    const toast = document.getElementById('toast-copiado');
+    toast.classList.remove('hidden');
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, 2000);
 }
 
 // Resumen del día en el header

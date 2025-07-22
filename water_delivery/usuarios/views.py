@@ -1,3 +1,10 @@
+# =============================================
+# VISTAS DE AUTENTICACIÓN Y RECUPERACIÓN DE USUARIOS
+# =============================================
+# Este archivo contiene las vistas para login, logout, registro y recuperación
+# de contraseña de los usuarios del sistema Water Delivery. Incluye lógica para
+# distinguir entre empresa y conductor, y manejo de tokens de recuperación.
+
 from django.views.generic import CreateView, FormView
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy, reverse
@@ -17,9 +24,17 @@ from django.db import transaction, connection
 DEFAULT_FROM_EMAIL = settings.DEFAULT_FROM_EMAIL
 
 class CustomLoginView(LoginView):
+    """
+    Vista personalizada de login.
+    Redirige según el tipo de usuario (empresa o conductor) tras iniciar sesión.
+    """
     template_name = 'usuarios/login.html'
     
     def get_success_url(self):
+        """
+        Determina la URL de redirección tras login exitoso.
+        Si hay 'next', la usa; si no, redirige según el tipo de usuario.
+        """
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
@@ -32,19 +47,33 @@ class CustomLoginView(LoginView):
         return reverse_lazy('clientes:lista_clientes')
 
 class CustomLogoutView(LogoutView):
+    """
+    Vista personalizada de logout.
+    Redirige siempre a la página de login.
+    """
     next_page = reverse_lazy('usuarios:login')
 
 class CustomRegisterView(CreateView):
+    """
+    Vista de registro de nuevos usuarios.
+    Muestra mensajes de éxito o error según el resultado del formulario.
+    """
     form_class = CustomUserCreationForm
     template_name = 'usuarios/register.html'
     success_url = reverse_lazy('usuarios:login')
 
     def form_valid(self, form):
+        """
+        Si el formulario es válido, registra el usuario y muestra mensaje de éxito.
+        """
         response = super().form_valid(form)
         messages.success(self.request, '¡Registro exitoso! Ahora puedes iniciar sesión.')
         return response
 
     def form_invalid(self, form):
+        """
+        Si el formulario es inválido, muestra mensajes de error detallados.
+        """
         for field, errors in form.errors.items():
             for error in errors:
                 messages.error(
@@ -54,11 +83,18 @@ class CustomRegisterView(CreateView):
         return super().form_invalid(form)
 
 class RecuperacionEmailView(FormView):
+    """
+    Vista para solicitar recuperación de contraseña por email.
+    Envía un enlace de recuperación si el email existe en el sistema.
+    """
     template_name = 'usuarios/recuperacion_email.html'
     form_class = EmailForm
     success_url = reverse_lazy('usuarios:login')
 
     def form_valid(self, form):
+        """
+        Si el email existe, genera token y envía correo de recuperación.
+        """
         email = form.cleaned_data['email']
         try:
             usuario = Usuario.objects.get(email=email)
@@ -68,7 +104,7 @@ class RecuperacionEmailView(FormView):
             usuario.token_recuperacion_fecha = timezone.now()
             usuario.save()
             
-            # Asegúrate que estás usando el nombre correcto de la URL
+            # Construye la URL de reseteo
             reset_url = self.request.build_absolute_uri(
                 reverse('usuarios:resetear_con_token', kwargs={'token': token})
             )
@@ -99,11 +135,18 @@ El equipo de Water Delivery''',
             return self.form_invalid(form)
 
 class ResetearConTokenView(FormView):
+    """
+    Vista para restablecer la contraseña usando un token enviado por email.
+    Valida el token y permite cambiar la contraseña si es válido.
+    """
     template_name = 'usuarios/resetear_con_token.html'
     form_class = ResetPasswordForm
     success_url = reverse_lazy('usuarios:login')
 
     def dispatch(self, request, *args, **kwargs):
+        """
+        Valida el token de recuperación antes de mostrar el formulario.
+        """
         token = kwargs.get('token')
         try:
             self.usuario = Usuario.objects.get(
@@ -116,11 +159,17 @@ class ResetearConTokenView(FormView):
             return redirect('usuarios:recuperar')
 
     def get_context_data(self, **kwargs):
+        """
+        Agrega el usuario al contexto para mostrar información en el template.
+        """
         context = super().get_context_data(**kwargs)
         context['usuario'] = self.usuario
         return context
 
     def form_valid(self, form):
+        """
+        Si el formulario es válido, actualiza la contraseña y elimina el token.
+        """
         nueva_password = form.cleaned_data['nueva_password']
         try:
             with transaction.atomic():

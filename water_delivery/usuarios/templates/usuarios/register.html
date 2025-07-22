@@ -1,3 +1,8 @@
+{# =============================================
+   REGISTRO DE USUARIOS
+   =============================================
+   Formulario de registro, validaciones, mensajes y enlace a login.
+#}
 {% extends 'base.html' %}
 {% load static %}
 {% load crispy_forms_tags %}
@@ -8,6 +13,7 @@
 
 {% block content %}
 
+{# Mensajes de éxito o error (Django messages) #}
 {% if messages %}
 <div class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md px-4">
     {% for message in messages %}
@@ -23,8 +29,10 @@
 </div>
 {% endif %}
 
+{# Toast de error para validaciones rápidas #}
 <div id="register-toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 hidden w-full max-w-xs bg-red-100 text-red-800 border-l-4 border-red-500 p-4 rounded-lg shadow-lg text-center"></div>
 
+{# Logo y título principal #}
 <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-agua-light/20 to-agua-blue/30">
     <div class="max-w-4xl w-full space-y-8">
         <!-- Logo y título -->
@@ -42,7 +50,7 @@
             </p>
         </div>
 
-        <!-- Tarjeta del formulario -->
+        {# Tarjeta del formulario de registro: encabezado, campos y botón #}
         <div class="bg-white rounded-xl shadow-xl overflow-hidden border border-agua-light/30">
             <!-- Encabezado con gradiente -->
             <div class="bg-gradient-to-r from-agua-light to-agua-blue py-3 px-6">
@@ -57,7 +65,7 @@
                 <form method="post" class="space-y-6" id="registerForm">
                     {% csrf_token %}
                     
-                    <!-- Mostrar errores generales del formulario -->
+                    {# Errores generales del formulario #}
                     {% if form.non_field_errors %}
                     <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6">
                         {% for error in form.non_field_errors %}
@@ -66,7 +74,7 @@
                     </div>
                     {% endif %}
 
-                    <!-- Información Personal -->
+                    {# Información personal: username, email, teléfono, tipo de usuario, dirección #}
                     <div class="border-b border-agua-light/30 pb-6">
                         <h4 class="text-md font-medium text-agua-dark mb-6 flex items-center">
                             <i class="fas fa-user-circle mr-3 text-agua-blue"></i>
@@ -204,7 +212,7 @@
                         </div>
                     </div>
 
-                    <!-- Seguridad de la Cuenta -->
+                    {# Seguridad de la cuenta: contraseñas #}
                     <div class="border-b border-agua-light/30 pb-6">
                         <h4 class="text-md font-medium text-agua-dark mb-6 flex items-center">
                             <i class="fas fa-lock mr-3 text-agua-blue"></i>
@@ -274,7 +282,7 @@
                         </div>
                     </div>
 
-                    <!-- Términos y condiciones -->
+                    {# Términos y condiciones #}
                     <div class="bg-agua-light/20 rounded-lg p-4 border border-agua-light/30">
                         <div class="flex items-start">
                             <div class="flex items-center h-5">
@@ -296,7 +304,7 @@
                         </div>
                     </div>
 
-                    <!-- Botón de envío -->
+                    {# Botón de envío #}
                     <div>
                         <button type="submit" 
                                 class="group relative w-full flex justify-center py-4 px-6 border border-transparent text-lg font-medium rounded-lg text-white bg-gradient-to-r from-agua-blue to-agua-dark hover:from-agua-dark hover:to-agua-blue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-agua-blue transition-all duration-200 transform hover:scale-[1.02] shadow-lg">
@@ -311,7 +319,7 @@
                         </button>
                     </div>
 
-                    <!-- Enlace a login -->
+                    {# Enlace a login #}
                     <div class="text-center pt-4">
                         <p class="text-sm text-agua-dark">
                             ¿Ya tienes cuenta? 
@@ -329,7 +337,7 @@
     </div>
 </div>
 
-<!-- JavaScript -->
+{# Scripts JS: validación, mostrar/ocultar contraseña, toast, scroll a errores #}
 <script>
 function showRegisterToast(msg) {
     const toast = document.getElementById('register-toast');
@@ -422,7 +430,7 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
 });
 </script>
 
-<!-- Estilos adicionales -->
+{# Estilos adicionales para inputs, botones y checkbox #}
 <style>
     /* Efecto de onda en el botón */
     @keyframes wave {

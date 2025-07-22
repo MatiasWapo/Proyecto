@@ -1,3 +1,8 @@
+{# =============================================
+   EDICIÓN DE CLIENTE
+   =============================================
+   Permite modificar los datos de un cliente, cambiar su estado y ver información actual.
+#}
 {% extends 'base.html' %}
 {% load static %}
 {% load widget_tweaks %}
@@ -7,7 +12,7 @@
 {% block content %}
 <div class="min-h-screen bg-gray-50 py-4 sm:py-6">
     <div class="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
-        <!-- Header -->
+        {# Header: icono, título y acciones principales (ver historial, volver) #}
         <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div class="flex items-center gap-3">
                 <div class="edit-icon flex items-center justify-center">
@@ -28,7 +33,7 @@
             </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Formulario de edición -->
+            {# Formulario de edición: nombre, apellido, teléfono, dirección, precio, estado #}
             <div class="md:col-span-2">
                 <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
                     <h5 class="mb-4 text-agua-dark font-bold flex items-center text-base sm:text-lg">
@@ -90,7 +95,7 @@
                     </form>
                 </div>
             </div>
-            <!-- Panel lateral con información -->
+            {# Panel lateral: información actual y acciones rápidas (ver historial, nuevo despacho, habilitar/deshabilitar) #}
             <div>
                 <div class="bg-agua-light rounded-xl shadow-sm mb-4 p-4">
                     <h6 class="mb-4 text-agua-dark font-bold flex items-center text-base">
@@ -146,7 +151,7 @@
         </div>
     </div>
 </div>
-<!-- Modal de confirmación para cambiar estado -->
+{# Modal de confirmación para cambiar estado del cliente #}
 <div id="confirm-estado-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
   <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-sm">
     <div class="flex items-center mb-4">
@@ -163,7 +168,7 @@
   </div>
 </div>
 
-<!-- Estilos específicos -->
+{# Estilos específicos para la página de edición de cliente #}
 <style>
 :root {
     --agua-blue: #0891b2;
@@ -281,6 +286,7 @@
 }
 </style>
 
+{# Scripts JS: auto-focus, validación en tiempo real, lógica del modal de confirmación #}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Auto-focus en el primer campo

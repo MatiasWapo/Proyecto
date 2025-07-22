@@ -7,6 +7,11 @@
 <div class="min-h-screen bg-gray-50 py-4 sm:py-6">
     <div class="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
         
+        {# =============================================
+           HISTORIAL DE DESPACHOS
+           =============================================
+           Muestra el resumen de despachos de los últimos 10 días, agrupados por día.
+        #}
         <!-- Header del Historial -->
         <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
             <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
@@ -20,6 +25,7 @@
             </div>
         </div>
 
+        {# Lista de días: cada día muestra sus despachos, totales y acciones #}
         <!-- Lista de días -->
         <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-2">
@@ -44,6 +50,7 @@
     </div>
 </div>
 
+{# Modal de confirmación para marcar como entregado #}
 <!-- Modal de confirmación para marcar como entregado -->
 <div id="confirm-entregar-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
   <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-sm">
@@ -61,6 +68,7 @@
   </div>
 </div>
 
+{# Scripts JS: carga de historial, toggle de detalles, confirmaciones y notificaciones #}
 <!-- JavaScript -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {

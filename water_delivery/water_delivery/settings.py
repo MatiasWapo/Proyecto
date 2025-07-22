@@ -1,14 +1,38 @@
+# =============================================
+# CONFIGURACIÓN PRINCIPAL DE DJANGO (settings.py)
+# =============================================
+# Define rutas, apps, seguridad, base de datos, internacionalización, archivos estáticos y email.
+# ¡IMPORTANTE! Cambiar claves y opciones de seguridad en producción.
+#
+# Secciones principales:
+# - Seguridad y rutas
+# - Apps instaladas
+# - Middleware
+# - Templates
+# - Base de datos
+# - Validación de contraseñas
+# - Internacionalización
+# - Archivos estáticos
+# - Email y seguridad
+
 from pathlib import Path
 import os 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# =====================
+# Seguridad y rutas
+# =====================
+# SECRET_KEY, DEBUG, ALLOWED_HOSTS
 # Security settings (¡OJO! Cambiar en producción)
 SECRET_KEY = 'django-insecure-a!d5f&34%4n*2^4c*&6^0v2d=*c0x)$j-o#mvde^7odl4p2mi-'
 DEBUG = True
 ALLOWED_HOSTS = []
 
+# =====================
+# Apps instaladas
+# =====================
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -24,16 +48,25 @@ INSTALLED_APPS = [
     'widget_tweaks',
 ] 
 
+# =====================
+# Configuración de Crispy Forms
+# =====================
 # Crispy Forms Config
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
+# =====================
+# Autenticación y usuario personalizado
+# =====================
 # Authentication Settings
 AUTH_USER_MODEL = 'usuarios.Usuario'
 LOGIN_URL = 'usuarios:login'
 LOGIN_REDIRECT_URL = 'clientes:lista_clientes'  
 LOGOUT_REDIRECT_URL = 'usuarios:login'
 
+# =====================
+# Middleware
+# =====================
 # Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -48,6 +81,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'water_delivery.urls'
 
+# =====================
+# Templates y contexto
+# =====================
 # Templates
 TEMPLATES = [
     {
@@ -66,6 +102,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'water_delivery.wsgi.application'
 
+# =====================
+# Base de datos
+# =====================
 # Database
 DATABASES = {
     "default": {
@@ -78,6 +117,9 @@ DATABASES = {
     }
 }
 
+# =====================
+# Validación de contraseñas
+# =====================
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -97,12 +139,18 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# =====================
+# Internacionalización
+# =====================
 # Internationalization
 LANGUAGE_CODE = 'es-es'  # Cambiado a español
 TIME_ZONE = 'America/Caracas'
 USE_I18N = True
 USE_TZ = True
 
+# =====================
+# Archivos estáticos
+# =====================
 # Static files
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
@@ -111,6 +159,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Default primary key
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# =====================
+# Email y seguridad
+# =====================
 # Email Configuration (Development)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'

@@ -1,3 +1,11 @@
+# =============================================
+# VISTAS Y APIS PARA GESTIÓN DE CLIENTES Y DESPACHOS
+# =============================================
+# Este archivo contiene las vistas principales, APIs y decoradores
+# para el manejo de clientes, despachos y pagos en la aplicación Water Delivery.
+# Incluye protección de vistas según el tipo de usuario (empresa/conductor),
+# lógica de negocio y endpoints para AJAX/JS.
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from django.urls import reverse_lazy
@@ -20,6 +28,10 @@ from django.db import models
 # Decorador para empresa
 
 def solo_empresa(view_func):
+    """
+    Permite el acceso solo a usuarios con tipo 'empresa'.
+    Si el usuario no es empresa, redirige con mensaje de error.
+    """
     def _wrapped_view(request, *args, **kwargs):
         if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'empresa':
             return acceso_denegado_conductor(request)
@@ -29,19 +41,31 @@ def solo_empresa(view_func):
 # Decorador para conductor
 
 def solo_conductor(view_func):
+    """
+    Permite el acceso solo a usuarios con tipo 'conductor'.
+    Si el usuario no es conductor, redirige con mensaje de error.
+    """
     def _wrapped_view(request, *args, **kwargs):
         if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'conductor':
             return acceso_denegado_conductor(request)
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 
+# Función de redirección para accesos denegados
+
 def acceso_denegado_conductor(request):
+    """
+    Redirige al conductor a la página de nuevo despacho con mensaje de error.
+    """
     messages.error(request, 'No tienes permiso para acceder a esta página.')
     return redirect('clientes:nuevo_despacho')
 
 # --- PROTECCIÓN DE VISTAS SEGÚN ROL ---
 
 def solo_empresa_o_api_despacho(view_func):
+    """
+    Permite acceso solo a empresa o a ciertas APIs de despacho.
+    """
     def _wrapped_view(request, *args, **kwargs):
         if hasattr(request.user, 'tipo_usuario') and request.user.tipo_usuario == 'conductor':
             return acceso_denegado_conductor(request)
@@ -49,6 +73,9 @@ def solo_empresa_o_api_despacho(view_func):
     return _wrapped_view
 
 def empresa_o_conductor(view_func):
+    """
+    Permite acceso a usuarios autenticados que sean empresa o conductor.
+    """
     def _wrapped_view(request, *args, **kwargs):
         if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) not in ['empresa', 'conductor']:
             return acceso_denegado_conductor(request)
@@ -60,7 +87,10 @@ def empresa_o_conductor(view_func):
 @solo_empresa
 @login_required
 def dashboard(request):
-    """Vista para el panel de control principal"""
+    """
+    Vista para el panel de control principal.
+    Muestra resumen de clientes activos, deuda total y despachos pendientes.
+    """
     total_clientes = Cliente.objects.filter(activo=True).count()
     total_deuda = Cliente.objects.aggregate(Sum('debe_total'))['debe_total__sum'] or 0
     despachos_pendientes = Despacho.objects.filter(entregado=False).count()
@@ -74,19 +104,26 @@ def dashboard(request):
 @solo_empresa
 @login_required
 def dashboard_despachos(request):
-    """Nueva vista para el dashboard de despachos diarios"""
+    """
+    Vista para el dashboard de despachos diarios (solo empresa).
+    """
     return render(request, 'clientes/despacho_nuevo.html')
 
 @empresa_o_conductor
 @login_required
 def nuevo_despacho(request):
-    """Vista para el dashboard de despachos diarios"""
+    """
+    Vista para crear un nuevo despacho (empresa o conductor).
+    """
     return render(request, 'clientes/nuevo_despacho.html')
 
 # APIs necesarias para ambos roles
 @login_required
 def api_clientes_activos(request):
-    """API para obtener lista de clientes activos"""
+    """
+    API para obtener lista de clientes activos.
+    Retorna datos básicos de cada cliente para autocompletar o selección.
+    """
     clientes = Cliente.objects.filter(activo=True).values(
         'id', 'nombre', 'apellido', 'direccion', 'telefono'
     )
@@ -104,7 +141,10 @@ def api_clientes_activos(request):
 
 @login_required
 def api_despachos_hoy(request):
-    """API para obtener despachos del día actual"""
+    """
+    API para obtener despachos del día actual.
+    Retorna lista de despachos con datos del cliente y estado de entrega.
+    """
     hoy = date.today()
     despachos = Despacho.objects.filter(
         fecha__date=hoy
@@ -128,7 +168,10 @@ def api_despachos_hoy(request):
 @require_http_methods(["POST"])
 @login_required
 def api_crear_despacho(request):
-    """API para crear un nuevo despacho"""
+    """
+    API para crear un nuevo despacho.
+    Valida datos, crea el despacho y actualiza el saldo del cliente.
+    """
     try:
         data = json.loads(request.body)
         cliente_id = data.get('cliente_id')

@@ -1,3 +1,9 @@
+# =============================================
+# FORMULARIOS PERSONALIZADOS PARA USUARIOS
+# =============================================
+# Este archivo define los formularios para registro, recuperación y validación
+# de usuarios, incluyendo validaciones personalizadas y estilos para los campos.
+
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import MinLengthValidator, RegexValidator  # Añade RegexValidator aquí
@@ -7,6 +13,10 @@ import re
 from django.contrib.auth.password_validation import validate_password
 
 class CustomUserCreationForm(UserCreationForm):
+    """
+    Formulario personalizado para el registro de nuevos usuarios.
+    Incluye validaciones de teléfono, dirección y tipo de usuario.
+    """
     telefono = forms.CharField(
         max_length=20,
         required=True,
@@ -51,10 +61,12 @@ class CustomUserCreationForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
+        # Estilos comunes para los campos
         common_attrs = {
             'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 pl-12'
         }
         
+        # Personalización de widgets y etiquetas
         self.fields['username'].widget.attrs.update({
             **common_attrs,
             'placeholder': 'Elige tu nombre de usuario'
@@ -88,6 +100,9 @@ class CustomUserCreationForm(UserCreationForm):
         self.fields['password2'].label = 'Confirmar Contraseña'
         
     def clean_username(self):
+        """
+        Valida el nombre de usuario: obligatorio, mínimo 4 caracteres y solo caracteres permitidos.
+        """
         username = self.cleaned_data.get('username')
         if not username:
             raise ValidationError("El nombre de usuario es obligatorio")
@@ -98,6 +113,9 @@ class CustomUserCreationForm(UserCreationForm):
         return username
     
 class RecuperacionForm(forms.Form):
+    """
+    Formulario para solicitar recuperación de cuenta por nombre de usuario.
+    """
     username = forms.CharField(
         label='Nombre de usuario',
         widget=forms.TextInput(attrs={
@@ -106,6 +124,9 @@ class RecuperacionForm(forms.Form):
     )
 
 class PreguntasSeguridadForm(forms.Form):
+    """
+    Formulario para responder preguntas de seguridad y cambiar la contraseña.
+    """
     nueva_password = forms.CharField(
         label="Nueva Contraseña",
         widget=forms.PasswordInput(attrs={
@@ -129,6 +150,9 @@ class PreguntasSeguridadForm(forms.Form):
     )
 
     def clean(self):
+        """
+        Valida que ambas contraseñas coincidan y cumplen los requisitos.
+        """
         cleaned_data = super().clean()
         nueva_password = cleaned_data.get('nueva_password')
         confirmar_password = cleaned_data.get('confirmar_password')
@@ -139,6 +163,9 @@ class PreguntasSeguridadForm(forms.Form):
         return cleaned_data
 
 class EmailForm(forms.Form):
+    """
+    Formulario para solicitar recuperación de cuenta por email.
+    """
     email = forms.EmailField(
         label='Correo Electrónico',
         widget=forms.EmailInput(attrs={
@@ -148,6 +175,9 @@ class EmailForm(forms.Form):
     )
     
 class ResetPasswordForm(forms.Form):
+    """
+    Formulario para restablecer la contraseña usando un token de recuperación.
+    """
     nueva_password = forms.CharField(
         label="Nueva contraseña",
         widget=forms.PasswordInput(attrs={
@@ -171,6 +201,9 @@ class ResetPasswordForm(forms.Form):
     )
 
     def clean(self):
+        """
+        Valida que ambas contraseñas coincidan y que la nueva contraseña sea segura.
+        """
         cleaned_data = super().clean()
         nueva_password = cleaned_data.get("nueva_password")
         confirmar_password = cleaned_data.get("confirmar_password")

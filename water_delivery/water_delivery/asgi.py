@@ -1,16 +1,14 @@
 """
 ASGI config for water_delivery project.
 
-It exposes the ASGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/5.2/howto/deployment/asgi/
+Expone la variable ASGI application para servidores compatibles (Daphne, Uvicorn, etc).
 """
 
 import os
 
 from django.core.asgi import get_asgi_application
 
+# Configuración del entorno y obtención de la aplicación ASGI
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'water_delivery.settings')
 
 application = get_asgi_application()

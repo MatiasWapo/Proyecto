@@ -6,9 +6,14 @@
 {% block navbar %}{% endblock %}
 
 {% block content %}
+{# =============================================
+   LOGIN DE USUARIOS
+   =============================================
+   Formulario de inicio de sesión, mensajes de error y enlace a registro.
+#}
 <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-agua-light/20 to-agua-blue/30">
     <div class="max-w-md w-full space-y-8">
-        <!-- Logo y título -->
+        {# Logo y título principal #}
         <div class="text-center">
             <div class="mx-auto flex justify-center">
                 <div class="bg-white p-3 rounded-full shadow-lg border-2 border-agua-blue">
@@ -23,7 +28,7 @@
             </p>
         </div>
 
-        <!-- Tarjeta del formulario -->
+        {# Tarjeta del formulario de login: encabezado, mensajes de error, campos y botón #}
         <div class="bg-white rounded-xl shadow-xl overflow-hidden border border-agua-light/30">
             <!-- Encabezado con gradiente -->
             <div class="bg-gradient-to-r from-agua-light to-agua-blue py-3 px-6">
@@ -56,7 +61,7 @@
                 <form method="post" class="space-y-6" id="loginForm">
                     {% csrf_token %}
                     
-                    <!-- Campo Username -->
+                    {# Campo de usuario #}
                     <div class="space-y-1">
                         <label for="username" class="block text-sm font-medium text-agua-dark">
                             <i class="fas fa-user mr-2 text-agua-blue"></i>
@@ -70,7 +75,7 @@
                                class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-agua-blue focus:border-transparent placeholder-gray-400 transition-all duration-200">
                     </div>
                     
-                    <!-- Campo Password -->
+                    {# Campo de contraseña #}
                     <div class="space-y-1">
                         <label for="password" class="block text-sm font-medium text-agua-dark">
                             <i class="fas fa-lock mr-2 text-agua-blue"></i>
@@ -84,7 +89,7 @@
                                class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-agua-blue focus:border-transparent placeholder-gray-400 transition-all duration-200">
                     </div>
 
-                    <!-- Recordar y Olvidé contraseña -->
+                    {# Recordar usuario y enlace a recuperación de contraseña #}
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
                             <input type="checkbox" 
@@ -103,7 +108,7 @@
                         </div>
                     </div>
 
-                    <!-- Botón de envío -->
+                    {# Botón de envío #}
                     <div>
                         <button type="submit" 
                                 class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-agua-blue to-agua-dark hover:from-agua-dark hover:to-agua-blue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-agua-blue transition-all duration-200 transform hover:scale-[1.02] shadow-md">
@@ -117,7 +122,7 @@
             </div>
         </div>
 
-        <!-- Enlace a registro -->
+        {# Enlace a registro #}
         <div class="text-center">
             <p class="text-sm text-agua-dark">
                 ¿No tienes cuenta? 
@@ -132,7 +137,7 @@
     </div>
 </div>
 
-<!-- Efectos adicionales -->
+{# Estilos y efectos adicionales para inputs y botones #}
 <style>
     /* Animación suave para los inputs al enfocar */
     #loginForm input:focus {

@@ -1,11 +1,16 @@
 #!/usr/bin/env python
-"""Django's command-line utility for administrative tasks."""
+"""
+Archivo de utilidad para tareas administrativas de Django.
+Permite ejecutar comandos como runserver, makemigrations, migrate, etc.
+"""
 import os
 import sys
 
 
 def main():
-    """Run administrative tasks."""
+    """
+    Función principal: configura el entorno y ejecuta comandos de Django.
+    """
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'water_delivery.settings')
     try:
         from django.core.management import execute_from_command_line

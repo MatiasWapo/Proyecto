@@ -4,9 +4,14 @@
 {% block title %}Lista de Clientes{% endblock %}
 
 {% block content %}
+{# =============================================
+   LISTA DE CLIENTES
+   =============================================
+   Muestra la tabla principal de clientes, búsqueda, acciones y modales de confirmación.
+#}
 <div class="container-fluid py-4 px-2 sm:px-4">
     
-    <!-- Contador de clientes compacto -->
+    {# Contador compacto de clientes #}
     <div class="row mb-3">
         <div class="col-12">
             <div class="stats-compact flex justify-center items-center">
@@ -18,7 +23,7 @@
         </div>
     </div>
 
-    <!-- Búsqueda optimizada y compacta -->
+    {# Búsqueda optimizada y compacta #}
     <div class="row mb-4">
         <div class="col-12">
             <div class="search-container">
@@ -56,7 +61,7 @@
         </div>
     </div>
 
-    <!-- Resultados de búsqueda -->
+    {# Resultados de búsqueda: alerta informativa #}
     {% if request.GET.buscar %}
     <div class="row mb-4">
         <div class="col-12">
@@ -79,7 +84,7 @@
     </div>
     {% endif %}
 
-    <!-- Lista de clientes - Diseño mejorado -->
+    {# Lista de clientes: tabla moderna, filas con información y acciones #}
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm border-0 clients-card">
@@ -229,7 +234,7 @@
     </div>
 </div>
 
-<!-- Modal de confirmación personalizado -->
+{# Modal de confirmación para habilitar/deshabilitar cliente #}
 <div id="confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
   <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-sm">
     <div class="flex items-center mb-4">
@@ -246,7 +251,7 @@
   </div>
 </div>
 
-<!-- Estilos mejorados y modernos -->
+{# Estilos modernos y responsivos para la tabla, tarjetas, botones y alertas #}
 <style>
 :root {
     --agua-blue: #0891b2;
@@ -750,22 +755,26 @@
 }
 </style>
 
-<!-- JavaScript mejorado -->
+{# Scripts JS: auto-focus, tooltips, animaciones, modales de confirmación #}
 <script>
+// =============================
+// FUNCIONALIDAD GENERAL DE LA PÁGINA
+// =============================
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-focus en búsqueda
+    // 1. Auto-focus en el campo de búsqueda al cargar la página si está vacío
     const searchInput = document.querySelector('input[name="buscar"]');
     if (searchInput && !searchInput.value) {
         searchInput.focus();
     }
     
-    // Inicializar tooltips
+    // 2. Inicializar tooltips de Bootstrap para los elementos que lo requieran
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
     
-    // Auto-dismiss alerts
+    // 3. Cerrar automáticamente las alertas de Bootstrap después de 8 segundos
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
@@ -774,7 +783,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 8000);
     });
     
-    // Animaciones suaves para las filas
+    // 4. Animación de aparición suave para las filas de clientes
     const rows = document.querySelectorAll('.client-row');
     rows.forEach((row, index) => {
         row.style.opacity = '0';
@@ -787,8 +796,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Función para enfocar el campo de búsqueda si estamos en la lista de clientes
 function focusSearch() {
-    // Si ya estamos en la página de lista de clientes
     if (window.location.pathname === "{% url 'clientes:lista_clientes' %}") {
         const searchInput = document.querySelector('input[name="buscar"]');
         if (searchInput) {
@@ -797,7 +806,7 @@ function focusSearch() {
     }
 }
 
-// Auto-focus en búsqueda cuando viene del navbar
+// Auto-focus en búsqueda si se accede desde el navbar con hash #search
 if (window.location.hash === '#search') {
     const searchInput = document.querySelector('input[name="buscar"]');
     if (searchInput) {
@@ -805,6 +814,7 @@ if (window.location.hash === '#search') {
     }
 }
 
+// Modal de confirmación para acciones importantes (eliminar/restaurar cliente)
 function showConfirmModal(link, accion, event) {
   event.preventDefault();
   const modal = document.getElementById('confirm-modal');
@@ -815,6 +825,7 @@ function showConfirmModal(link, accion, event) {
   modal.classList.remove('hidden');
   return false;
 }
+// Cierra el modal de confirmación
 function closeConfirmModal() {
   document.getElementById('confirm-modal').classList.add('hidden');
 }

@@ -1,10 +1,15 @@
+{# =============================================
+   NAVEGACIÓN GLOBAL
+   =============================================
+   Barra de navegación principal, menú móvil y usuario logeado.
+#}
 {% load static %}
 
 <nav class="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
             
-            <!-- Logo/Brand -->
+            {# Logo/Brand principal #}
             <div class="flex items-center">
                 <div class="flex-shrink-0 flex items-center">
                     <i class="fas fa-tint text-2xl text-agua-blue mr-3"></i>
@@ -12,18 +17,18 @@
                 </div>
             </div>
 
-            <!-- Navegación principal (Desktop) -->
+            {# Navegación principal (desktop): enlaces según tipo de usuario #}
             <div class="hidden md:block">
                 <div class="ml-10 flex items-baseline space-x-4">
                     {% if user.is_authenticated and user.tipo_usuario == 'conductor' %}
-                        <!-- Solo para conductor -->
+                        {# Solo para conductor #}
                         <a href="{% url 'clientes:nuevo_despacho' %}"
                            class="nav-link {% if request.resolver_match.url_name == 'nuevo_despacho' %}active{% endif %}">
                             <i class="fas fa-truck mr-2"></i>
                             Despachos
                         </a>
                     {% else %}
-                        <!-- Para empresa -->
+                        {# Para empresa #}
                         <a href="{% url 'clientes:lista_clientes' %}"
                            class="nav-link {% if request.resolver_match.url_name == 'lista_clientes' %}active{% endif %}">
                             <i class="fas fa-users mr-2"></i>
@@ -43,7 +48,7 @@
                 </div>
             </div>
 
-            <!-- Sección de usuario -->
+            {# Sección de usuario (desktop): menú desplegable y logout #}
             <div class="flex items-center space-x-4">
                 {% if user.is_authenticated %}
                 <div class="hidden md:block relative group">
@@ -77,7 +82,7 @@
                 </div>
                 {% endif %}
 
-                <!-- Botón menú móvil -->
+                {# Botón menú móvil #}
                 <div class="md:hidden">
                     <button type="button" 
                             class="mobile-menu-button inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-agua-blue transition-colors duration-200"
@@ -92,7 +97,7 @@
         </div>
     </div>
 
-    <!-- Menú móvil -->
+    {# Menú móvil: enlaces y usuario #}
     <div class="mobile-menu md:hidden hidden" id="mobile-menu">
         <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50 border-t border-gray-200">
             {% if user.is_authenticated and user.tipo_usuario == 'conductor' %}
@@ -119,7 +124,7 @@
                 </a>
             {% endif %}
 
-            <!-- Sección de usuario móvil -->
+            {# Sección de usuario móvil #}
             <div class="border-t border-gray-300 pt-3 mt-3">
                 {% if user.is_authenticated %}
                     <div class="px-3 py-2">
@@ -150,7 +155,7 @@
     </div>
 </nav>
 
-<!-- Estilos (sin cambios) -->
+{# Estilos para la navegación y menú #}
 <style>
     .nav-link {
         @apply text-gray-600 hover:bg-gray-100 hover:text-agua-blue px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-200;
@@ -177,7 +182,7 @@
     }
 </style>
 
-<!-- JavaScript (sin cambios) -->
+{# Scripts JS: menú móvil, dropdown usuario #}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const mobileMenuButton = document.querySelector('.mobile-menu-button');
