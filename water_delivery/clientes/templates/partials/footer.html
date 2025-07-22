@@ -1,25 +1,16 @@
-{# =============================================
-   FOOTER GLOBAL
-   =============================================
-   Pie de página con información de empresa, enlaces rápidos, usuario logeado y soporte.
-#}
 {% load static %}
 <footer class="bg-gray-800 text-white mt-auto">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Contenido principal del footer -->
         <div class="py-8">
             <div class="grid md:grid-cols-3 gap-8">
-                {# Información de la empresa #}
                 <div class="text-center md:text-left flex flex-col items-center md:items-start justify-center gap-2">
                     <div class="flex items-center space-x-2 mb-2">
                         <i class="fas fa-tint text-agua-light text-2xl"></i>
                         <span class="text-xl font-bold">Inversiones Los Dos Ramírez</span>
                     </div>
                     <p class="text-gray-300 text-sm">Gestión eficiente para tu negocio de agua</p>
-                    <!-- <p class="text-gray-400 text-xs">Desde [AÑO]</p> -->
                 </div>
                 
-                {# Enlaces rápidos de navegación #}
                 <div class="text-center">
                     <h3 class="text-lg font-semibold mb-4 text-agua-light">Enlaces Rápidos</h3>
                     <ul class="space-y-2 text-sm">
@@ -41,7 +32,6 @@
                     </ul>
                 </div>
                 
-                {# Información de contacto y usuario logeado #}
                 <div class="text-center md:text-right flex flex-col items-center md:items-end justify-center gap-2">
                     <h3 class="text-lg font-semibold mb-2 text-agua-light">Sesión</h3>
                     <div class="text-sm text-gray-300 flex items-center gap-2">
@@ -60,10 +50,8 @@
             </div>
         </div>
         
-        {# Línea divisoria y copyright #}
         <div class="border-t border-gray-700"></div>
         
-        <!-- Copyright -->
         <div class="py-4 text-center">
             <p class="text-sm text-gray-400">
                 &copy; {% now "Y" %} Water Delivery - Todos los derechos reservados

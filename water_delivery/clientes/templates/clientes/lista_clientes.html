@@ -4,26 +4,17 @@
 {% block title %}Lista de Clientes{% endblock %}
 
 {% block content %}
-{# =============================================
-   LISTA DE CLIENTES
-   =============================================
-   Muestra la tabla principal de clientes, búsqueda, acciones y modales de confirmación.
-#}
 <div class="container-fluid py-4 px-2 sm:px-4">
     
-    {# Contador compacto de clientes #}
     <div class="row mb-3">
-        <div class="col-12">
-            <div class="stats-compact flex justify-center items-center">
-                <div class="counter-badge flex items-center justify-center">
-                    <i class="fas fa-users me-2"></i>
-                    <span class="fw-bold">{{ clientes.count }}</span> Cliente{{ clientes.count|pluralize }} Total{{ clientes.count|pluralize }}
-                </div>
+        <div class="col-12 flex justify-end">
+            <div class="counter-badge flex items-center justify-center bg-gradient-agua text-white px-5 py-2 rounded-xl shadow-lg font-semibold text-base sm:text-lg border border-agua-light/50" style="min-width: 120px;">
+                <i class="fas fa-users me-2 text-xl"></i>
+                <span class="fw-bold">{{ clientes.count }}</span> <span class="ml-1">cliente{{ clientes.count|pluralize }}</span>
             </div>
         </div>
     </div>
 
-    {# Búsqueda optimizada y compacta #}
     <div class="row mb-4">
         <div class="col-12">
             <div class="search-container">
@@ -61,7 +52,6 @@
         </div>
     </div>
 
-    {# Resultados de búsqueda: alerta informativa #}
     {% if request.GET.buscar %}
     <div class="row mb-4">
         <div class="col-12">
@@ -84,7 +74,6 @@
     </div>
     {% endif %}
 
-    {# Lista de clientes: tabla moderna, filas con información y acciones #}
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm border-0 clients-card">
@@ -234,7 +223,6 @@
     </div>
 </div>
 
-{# Modal de confirmación para habilitar/deshabilitar cliente #}
 <div id="confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
   <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-sm">
     <div class="flex items-center mb-4">
@@ -251,7 +239,6 @@
   </div>
 </div>
 
-{# Estilos modernos y responsivos para la tabla, tarjetas, botones y alertas #}
 <style>
 :root {
     --agua-blue: #0891b2;
@@ -261,7 +248,6 @@
     --agua-gradient: linear-gradient(135deg, #0891b2, #0e7490, #164e63);
 }
 
-/* Gradientes y fondos */
 .bg-gradient-agua {
     background: var(--agua-gradient);
 }
@@ -270,7 +256,6 @@
     color: rgba(255, 255, 255, 0.75) !important;
 }
 
-/* Iconos y elementos circulares */
 .icon-circle {
     width: 60px;
     height: 60px;
@@ -292,7 +277,6 @@
     font-size: 20px;
 }
 
-/* Cards mejoradas */
 .search-card {
     border-radius: 15px;
     transition: all 0.3s ease;
@@ -308,7 +292,6 @@
     overflow: hidden;
 }
 
-/* Formulario de búsqueda */
 .search-form .input-group-text {
     border-radius: 10px 0 0 10px;
 }
@@ -321,7 +304,6 @@
     border-radius: 0 10px 10px 0;
 }
 
-/* Tabla moderna */
 .modern-table {
     font-size: 14px;
 }
@@ -350,7 +332,6 @@
     background-color: rgba(255, 193, 7, 0.05);
 }
 
-/* NUEVOS ESTILOS PARA CLIENTES INACTIVOS */
 .inactive-row {
     background-color: rgba(107, 114, 128, 0.05);
     opacity: 0.7;
@@ -361,7 +342,6 @@
     border-left-color: #6b7280;
 }
 
-/* Avatar del cliente */
 .client-avatar {
     width: 45px;
     height: 45px;
@@ -387,7 +367,6 @@
     box-shadow: 0 2px 8px rgba(107, 163, 175, 0.3);
 }
 
-/* Enlaces de contacto */
 .contact-link {
     color: var(--agua-dark);
     text-decoration: none;
@@ -400,14 +379,12 @@
     text-decoration: underline;
 }
 
-/* Texto de dirección */
 .address-text {
     color: #6b7280;
     font-size: 13px;
     line-height: 1.4;
 }
 
-/* Badges de estado */
 .status-badge {
     padding: 8px 16px;
     border-radius: 20px;
@@ -435,7 +412,6 @@
     box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
 }
 
-/* Botones de acción */
 .action-buttons {
     display: flex;
     gap: 8px;
@@ -499,7 +475,6 @@
     transform: translateY(-1px);
 }
 
-/* Estado vacío */
 .empty-state .empty-icon {
     width: 120px;
     height: 120px;
@@ -513,7 +488,6 @@
     color: var(--agua-blue);
 }
 
-/* Alertas */
 .alert-agua-info {
     background: var(--agua-light-bg);
     border-left: 4px solid var(--agua-blue);
@@ -532,7 +506,6 @@
     font-size: 16px;
 }
 
-/* Botones principales */
 .btn-agua-blue {
     background: var(--agua-gradient);
     border: none;
@@ -557,7 +530,6 @@
 .text-agua-blue { color: var(--agua-blue); }
 .text-agua-dark { color: var(--agua-dark); }
 
-/* Contador compacto */
 .stats-compact {
     padding: 1rem 0;
 }
@@ -571,7 +543,58 @@
     box-shadow: 0 4px 15px rgba(8, 145, 178, 0.3);
 }
 
-/* Búsqueda optimizada */
+/* Animación pulse para el contador de clientes */
+.counter-badge {
+    animation: none;
+    cursor: pointer;
+}
+.counter-badge:hover {
+    animation: pulse 0.7s;
+    box-shadow: 0 8px 32px rgba(8,145,178,0.18);
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.07); }
+    100% { transform: scale(1); }
+}
+
+/* Avatar con sombra y escala en hover */
+.client-avatar {
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+.client-avatar:hover {
+    box-shadow: 0 4px 16px rgba(8,145,178,0.25);
+    transform: scale(1.08);
+}
+
+/* Badges de estado con gradiente y borde */
+.badge.bg-secondary {
+    background: linear-gradient(135deg, #9ca3af, #6b7280);
+    color: white;
+    border: 1.5px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(107, 114, 128, 0.15);
+}
+
+/* Zebra striping para filas de tabla */
+.modern-table tbody tr:nth-child(even) {
+    background: #f1f5f9;
+}
+.modern-table tbody tr:nth-child(odd) {
+    background: #f8fafc;
+}
+
+/* Tooltips personalizados */
+.tooltip-inner {
+    background: var(--agua-blue) !important;
+    color: white !important;
+    font-size: 13px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(8,145,178,0.12);
+}
+.tooltip-arrow::before {
+    border-top-color: var(--agua-blue) !important;
+}
+
 .search-container {
     background: white;
     border-radius: 15px;
@@ -672,7 +695,6 @@
     color: #374151;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .icon-circle {
         width: 50px;
@@ -733,7 +755,6 @@
         border-bottom: 0;
     }
 
-    /* Responsive para búsqueda */
     .search-container {
         padding: 1.5rem;
         margin: 0 1rem;
@@ -755,26 +776,18 @@
 }
 </style>
 
-{# Scripts JS: auto-focus, tooltips, animaciones, modales de confirmación #}
 <script>
-// =============================
-// FUNCIONALIDAD GENERAL DE LA PÁGINA
-// =============================
-
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Auto-focus en el campo de búsqueda al cargar la página si está vacío
     const searchInput = document.querySelector('input[name="buscar"]');
     if (searchInput && !searchInput.value) {
         searchInput.focus();
     }
     
-    // 2. Inicializar tooltips de Bootstrap para los elementos que lo requieran
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
     
-    // 3. Cerrar automáticamente las alertas de Bootstrap después de 8 segundos
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
@@ -783,7 +796,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 8000);
     });
     
-    // 4. Animación de aparición suave para las filas de clientes
     const rows = document.querySelectorAll('.client-row');
     rows.forEach((row, index) => {
         row.style.opacity = '0';
@@ -796,7 +808,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Función para enfocar el campo de búsqueda si estamos en la lista de clientes
 function focusSearch() {
     if (window.location.pathname === "{% url 'clientes:lista_clientes' %}") {
         const searchInput = document.querySelector('input[name="buscar"]');
@@ -806,7 +817,6 @@ function focusSearch() {
     }
 }
 
-// Auto-focus en búsqueda si se accede desde el navbar con hash #search
 if (window.location.hash === '#search') {
     const searchInput = document.querySelector('input[name="buscar"]');
     if (searchInput) {
@@ -814,7 +824,6 @@ if (window.location.hash === '#search') {
     }
 }
 
-// Modal de confirmación para acciones importantes (eliminar/restaurar cliente)
 function showConfirmModal(link, accion, event) {
   event.preventDefault();
   const modal = document.getElementById('confirm-modal');
@@ -825,7 +834,6 @@ function showConfirmModal(link, accion, event) {
   modal.classList.remove('hidden');
   return false;
 }
-// Cierra el modal de confirmación
 function closeConfirmModal() {
   document.getElementById('confirm-modal').classList.add('hidden');
 }

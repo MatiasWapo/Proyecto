@@ -1,8 +1,3 @@
-{# =============================================
-   REGISTRO DE USUARIOS
-   =============================================
-   Formulario de registro, validaciones, mensajes y enlace a login.
-#}
 {% extends 'base.html' %}
 {% load static %}
 {% load crispy_forms_tags %}
@@ -13,7 +8,6 @@
 
 {% block content %}
 
-{# Mensajes de éxito o error (Django messages) #}
 {% if messages %}
 <div class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md px-4">
     {% for message in messages %}
@@ -29,13 +23,10 @@
 </div>
 {% endif %}
 
-{# Toast de error para validaciones rápidas #}
 <div id="register-toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 hidden w-full max-w-xs bg-red-100 text-red-800 border-l-4 border-red-500 p-4 rounded-lg shadow-lg text-center"></div>
 
-{# Logo y título principal #}
 <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-agua-light/20 to-agua-blue/30">
     <div class="max-w-4xl w-full space-y-8">
-        <!-- Logo y título -->
         <div class="text-center">
             <div class="mx-auto flex justify-center">
                 <div class="bg-white p-3 rounded-full shadow-lg border-2 border-agua-blue">
@@ -50,9 +41,7 @@
             </p>
         </div>
 
-        {# Tarjeta del formulario de registro: encabezado, campos y botón #}
         <div class="bg-white rounded-xl shadow-xl overflow-hidden border border-agua-light/30">
-            <!-- Encabezado con gradiente -->
             <div class="bg-gradient-to-r from-agua-light to-agua-blue py-3 px-6">
                 <h3 class="text-lg font-semibold text-white">
                     <i class="fas fa-user-plus mr-2"></i>
@@ -60,12 +49,10 @@
                 </h3>
             </div>
             
-            <!-- Cuerpo del formulario -->
             <div class="p-6">
                 <form method="post" class="space-y-6" id="registerForm">
                     {% csrf_token %}
                     
-                    {# Errores generales del formulario #}
                     {% if form.non_field_errors %}
                     <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6">
                         {% for error in form.non_field_errors %}
@@ -74,7 +61,6 @@
                     </div>
                     {% endif %}
 
-                    {# Información personal: username, email, teléfono, tipo de usuario, dirección #}
                     <div class="border-b border-agua-light/30 pb-6">
                         <h4 class="text-md font-medium text-agua-dark mb-6 flex items-center">
                             <i class="fas fa-user-circle mr-3 text-agua-blue"></i>
@@ -82,7 +68,6 @@
                         </h4>
                         
                         <div class="grid md:grid-cols-2 gap-6">
-                            <!-- Username -->
                             <div class="form-field">
                                 <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-agua-dark mb-2">
                                     <i class="fas fa-user mr-2 text-agua-blue"></i>
@@ -110,7 +95,6 @@
                                 {% endif %}
                             </div>
 
-                            <!-- Email -->
                             <div class="form-field">
                                 <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-agua-dark mb-2">
                                     <i class="fas fa-envelope mr-2 text-agua-blue"></i>
@@ -138,7 +122,6 @@
                         </div>
 
                         <div class="grid md:grid-cols-2 gap-6 mt-6">
-                            <!-- Teléfono -->
                             <div class="form-field">
                                 <label for="{{ form.telefono.id_for_label }}" class="block text-sm font-medium text-agua-dark mb-2">
                                     <i class="fas fa-phone mr-2 text-agua-blue"></i>
@@ -164,7 +147,6 @@
                                 {% endif %}
                             </div>
 
-                            <!-- Tipo de Usuario -->
                             <div class="form-field">
                                 <label for="{{ form.tipo_usuario.id_for_label }}" class="block text-sm font-medium text-agua-dark mb-2">
                                     <i class="fas fa-user-tag mr-2 text-agua-blue"></i>
@@ -187,7 +169,6 @@
                             </div>
                         </div>
 
-                        <!-- Dirección -->
                         <div class="mt-6">
                             <label for="{{ form.direccion.id_for_label }}" class="block text-sm font-medium text-agua-dark mb-2">
                                 <i class="fas fa-map-marker-alt mr-2 text-agua-blue"></i>
@@ -212,7 +193,6 @@
                         </div>
                     </div>
 
-                    {# Seguridad de la cuenta: contraseñas #}
                     <div class="border-b border-agua-light/30 pb-6">
                         <h4 class="text-md font-medium text-agua-dark mb-6 flex items-center">
                             <i class="fas fa-lock mr-3 text-agua-blue"></i>
@@ -220,7 +200,6 @@
                         </h4>
                         
                         <div class="grid md:grid-cols-2 gap-6">
-                            <!-- Password1 -->
                             <div class="form-field">
                                 <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-agua-dark mb-2">
                                     <i class="fas fa-key mr-2 text-agua-blue"></i>
@@ -250,7 +229,6 @@
                                 {% endif %}
                             </div>
 
-                            <!-- Password2 -->
                             <div class="form-field">
                                 <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-agua-dark mb-2">
                                     <i class="fas fa-key mr-2 text-agua-blue"></i>
@@ -282,7 +260,6 @@
                         </div>
                     </div>
 
-                    {# Términos y condiciones #}
                     <div class="bg-agua-light/20 rounded-lg p-4 border border-agua-light/30">
                         <div class="flex items-start">
                             <div class="flex items-center h-5">
@@ -304,7 +281,6 @@
                         </div>
                     </div>
 
-                    {# Botón de envío #}
                     <div>
                         <button type="submit" 
                                 class="group relative w-full flex justify-center py-4 px-6 border border-transparent text-lg font-medium rounded-lg text-white bg-gradient-to-r from-agua-blue to-agua-dark hover:from-agua-dark hover:to-agua-blue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-agua-blue transition-all duration-200 transform hover:scale-[1.02] shadow-lg">
@@ -319,7 +295,6 @@
                         </button>
                     </div>
 
-                    {# Enlace a login #}
                     <div class="text-center pt-4">
                         <p class="text-sm text-agua-dark">
                             ¿Ya tienes cuenta? 
@@ -333,11 +308,9 @@
             </div>
         </div>
 
-        <!-- Eliminar bloque de horario y teléfono de contacto -->
     </div>
 </div>
 
-{# Scripts JS: validación, mostrar/ocultar contraseña, toast, scroll a errores #}
 <script>
 function showRegisterToast(msg) {
     const toast = document.getElementById('register-toast');
@@ -345,7 +318,6 @@ function showRegisterToast(msg) {
     toast.classList.remove('hidden');
     setTimeout(() => { toast.classList.add('hidden'); }, 3500);
 }
-// Función para mostrar/ocultar contraseña
 function togglePassword(fieldId, button) {
     const field = document.getElementById(fieldId);
     const icon = button.querySelector('i');
@@ -365,7 +337,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('registerForm');
     const termsCheckbox = document.getElementById('terms');
     
-    // Validación de términos
     form.addEventListener('submit', function(e) {
         if (!termsCheckbox.checked) {
             e.preventDefault();
@@ -373,7 +344,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
         
-        // Mostrar estado de carga
         const btnText = document.getElementById('register-btn-text');
         const spinner = document.getElementById('register-spinner');
         const submitBtn = form.querySelector('button[type="submit"]');
@@ -385,26 +355,22 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Scroll suave a errores
     const firstError = document.querySelector('.text-red-500');
     if (firstError) {
         firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 });
 
-// Validación del formulario
 function validateForm() {
     const telefono = document.getElementById('{{ form.telefono.id_for_label }}').value;
     const password1 = document.getElementById('{{ form.password1.id_for_label }}').value;
     const password2 = document.getElementById('{{ form.password2.id_for_label }}').value;
     
-    // Validar formato de teléfono (simple validación)
     if (!telefono.startsWith('+')) {
         showRegisterToast('El teléfono debe comenzar con + (formato internacional)');
         return false;
     }
     
-    // Validar que las contraseñas coincidan
     if (password1 !== password2) {
         showRegisterToast('Las contraseñas no coinciden');
         return false;
@@ -413,7 +379,6 @@ function validateForm() {
     return true;
 }
 
-// Modifica el event listener del formulario
 document.getElementById('registerForm').addEventListener('submit', function(e) {
     const termsCheckbox = document.getElementById('terms');
     
@@ -430,9 +395,7 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
 });
 </script>
 
-{# Estilos adicionales para inputs, botones y checkbox #}
 <style>
-    /* Efecto de onda en el botón */
     @keyframes wave {
         0% { transform: scale(1); }
         50% { transform: scale(1.02); }
@@ -443,13 +406,11 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
         animation: wave 1.5s infinite;
     }
     
-    /* Estilo para el checkbox personalizado */
     input[type="checkbox"]:checked {
         background-color: #0891b2;
         background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
     }
     
-    /* Animación suave para los inputs al enfocar */
     #registerForm input:focus, 
     #registerForm select:focus,
     #registerForm textarea:focus {

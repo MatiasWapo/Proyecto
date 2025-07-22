@@ -1,9 +1,3 @@
-{# =============================================
-   DETALLE DE CLIENTE
-   =============================================
-   Muestra información, historial de despachos y pagos, estadísticas y acciones
-   para un cliente específico. Incluye formularios y modales de confirmación.
-#}
 {% extends 'base.html' %}
 {% load static %}
 {% load tz %}
@@ -86,26 +80,26 @@
             </div>
             <!-- Estadísticas -->
             <div>
-                <div class="bg-white rounded-xl shadow-sm p-4 h-full flex flex-col justify-between">
+                <div class="bg-white rounded-xl shadow-lg p-4 h-full flex flex-col justify-between border border-agua-light/50">
                     <h5 class="mb-4 text-agua-dark font-bold flex items-center text-base sm:text-lg">
                         <i class="fas fa-chart-bar me-2"></i> Estadísticas
                     </h5>
                     <div class="grid grid-cols-2 gap-2 mb-2">
-                        <div class="stat-item text-center">
-                            <div class="stat-number text-primary">{{ total_despachos }}</div>
-                            <div class="stat-label">Total Pedidos</div>
+                        <div class="stat-item text-center bg-blue-50 rounded-lg p-2 shadow-sm">
+                            <div class="stat-number text-agua-blue font-bold text-lg">{{ total_despachos }}</div>
+                            <div class="stat-label text-xs text-agua-dark">Total Pedidos</div>
                         </div>
-                        <div class="stat-item text-center">
-                            <div class="stat-number text-success">{{ despachos_entregados }}</div>
-                            <div class="stat-label">Entregados</div>
+                        <div class="stat-item text-center bg-green-50 rounded-lg p-2 shadow-sm">
+                            <div class="stat-number text-green-600 font-bold text-lg">{{ despachos_entregados }}</div>
+                            <div class="stat-label text-xs text-green-700">Entregados</div>
                         </div>
-                        <div class="stat-item text-center">
-                            <div class="stat-number text-warning">{{ despachos_pendientes }}</div>
-                            <div class="stat-label">Pendientes</div>
+                        <div class="stat-item text-center bg-yellow-50 rounded-lg p-2 shadow-sm">
+                            <div class="stat-number text-yellow-600 font-bold text-lg">{{ despachos_pendientes }}</div>
+                            <div class="stat-label text-xs text-yellow-700">Pendientes</div>
                         </div>
-                        <div class="stat-item text-center">
-                            <div class="stat-number text-agua-blue">{{ total_botellones }}</div>
-                            <div class="stat-label">Total Botellones</div>
+                        <div class="stat-item text-center bg-cyan-50 rounded-lg p-2 shadow-sm">
+                            <div class="stat-number text-agua-blue font-bold text-lg">{{ total_botellones }}</div>
+                            <div class="stat-label text-xs text-agua-dark">Total Botellones</div>
                         </div>
                     </div>
                 </div>
@@ -582,6 +576,56 @@
 
 .text-agua-blue { color: var(--agua-blue); }
 .text-agua-dark { color: var(--agua-dark); }
+
+/* Animación pulse para el avatar grande */
+.client-avatar-large {
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+.client-avatar-large:hover {
+    animation: pulse 0.7s;
+    box-shadow: 0 8px 32px rgba(8,145,178,0.18);
+    transform: scale(1.08);
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.07); }
+    100% { transform: scale(1); }
+}
+
+/* Hover con sombra en badges de estado */
+.badge.bg-warning, .badge.bg-agua-light {
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+.badge.bg-warning:hover, .badge.bg-agua-light:hover {
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.18);
+    transform: scale(1.05);
+}
+
+/* Badge de deuda con gradiente y borde */
+.bg-yellow-100 {
+    background: linear-gradient(135deg, #fef9c3, #fde68a) !important;
+    border: 1.5px solid #fde68a;
+}
+
+/* Zebra striping para filas de tabla */
+.table-responsive tbody tr:nth-child(even) {
+    background: #f1f5f9;
+}
+.table-responsive tbody tr:nth-child(odd) {
+    background: #f8fafc;
+}
+
+/* Tooltips personalizados */
+.tooltip-inner {
+    background: var(--agua-blue) !important;
+    color: white !important;
+    font-size: 13px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(8,145,178,0.12);
+}
+.tooltip-arrow::before {
+    border-top-color: var(--agua-blue) !important;
+}
 
 @media (max-width: 768px) {
     .client-avatar-large {

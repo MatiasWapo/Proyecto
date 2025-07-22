@@ -1,8 +1,3 @@
-<!-- =============================================
-     TEMPLATE BASE GLOBAL
-     =============================================
-     Define la estructura principal de la app: head, header, navbar, mensajes, contenido y footer.
--->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -10,13 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delivery de Agua - {% block title %}{% endblock %}</title>
     
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Font Awesome (mantenemos tus iconos) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Configuración personalizada de Tailwind -->
     <script>
         tailwind.config = {
             theme: {
@@ -31,7 +23,6 @@
         }
     </script>
     
-    <!-- Carga archivos estáticos si los tienes -->
     {% load static %}
     <link rel="stylesheet" href="{% static 'clientes/css/styles.css' %}">
 </head>
@@ -43,7 +34,7 @@
     {% endblock %}
 
     <main class="container mx-auto px-4 py-6 flex-1 max-w-7xl">
-        {% include 'partials/messages.html' %}  <!-- Para mensajes de Django -->
+        {% include 'partials/messages.html' %}
         {% block content %}{% endblock %}
     </main>
 

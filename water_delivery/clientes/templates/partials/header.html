@@ -1,28 +1,19 @@
-{# =============================================
-   HEADER GLOBAL
-   =============================================
-   Encabezado con logo, empresa, resumen del día, soporte y hora actual.
-#}
 {% load static %}
 <header class="bg-gradient-to-r from-cyan-500 to-blue-400 shadow-lg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-0">
-            <!-- Izquierda: Logo y empresa -->
             <div class="flex items-center gap-4 min-w-0">
-                <!-- Logo circular, no clickeable -->
                 <div class="bg-white p-1 rounded-full shadow-md flex items-center justify-center overflow-hidden border-4 border-white" style="width: 70px; height: 70px;">
                     <img src="{% static 'img/logo empresa.jpeg' %}"
                          alt="Logo Inversiones Ramírez"
                          class="w-14 h-14 object-contain rounded-full bg-white"
                          style="box-shadow: 0 2px 8px rgba(8,145,178,0.10);">
                 </div>
-                <!-- Texto de la marca -->
                 <div class="text-white flex flex-col justify-center">
                     <h1 class="text-xl md:text-2xl font-bold uppercase leading-tight">INVERSIONES RAMIREZ C.A.</h1>
                     <p class="text-xs md:text-sm text-blue-100">RIF: J-29535312-0</p>
                 </div>
             </div>
-            <!-- Centro: Resumen del día -->
             {% if user.is_authenticated %}
               <div class="flex-1 flex justify-center items-center">
                 <div id="resumen-dia-header" class="bg-white bg-opacity-80 rounded-xl shadow px-4 py-2 flex flex-col sm:flex-row items-center gap-2 sm:gap-4 border border-agua-blue">
@@ -43,7 +34,6 @@
                 </div>
               </div>
             {% endif %}
-            <!-- Derecha: Estado, soporte y hora -->
             <div class="flex flex-col md:items-end gap-2 order-2 md:order-3 min-w-fit">
                 <div class="flex flex-row md:flex-col items-center md:items-end gap-2 md:gap-1">
                     <div class="flex items-center gap-2">
@@ -63,11 +53,9 @@
         </div>
     </div>
     
-    <!-- Barra decorativa -->
     <div class="h-1 bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500"></div>
 </header>
 
-<!-- Modal de soporte técnico -->
 <div id="soporte-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
   <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-sm">
     <div class="flex items-center mb-4">
@@ -88,21 +76,17 @@
   </div>
 </div>
 
-<!-- Toast de notificación para copiar correo -->
 <div id="toast-copiado" class="fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg bg-agua-blue text-white font-semibold flex items-center gap-2 hidden">
     <i class="fas fa-check-circle"></i>
     <span>¡Correo copiado al portapapeles!</span>
 </div>
 
-<!-- Estilos adicionales -->
 <style>
-    /* Animación para el logo */
     .header-logo-container:hover img {
         transform: scale(1.05);
         transition: transform 0.2s ease-in-out;
     }
     
-    /* Efecto de ondas de agua */
     .water-wave {
         background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
         animation: wave 3s infinite;
@@ -113,7 +97,6 @@
         100% { transform: translateX(100%); }
     }
     
-    /* Responsive adjustments */
     @media (max-width: 640px) {
         .header-info {
             display: none;
@@ -121,7 +104,6 @@
     }
 </style>
 <script>
-// Actualizar fecha y hora en el header
 function updateHeaderDateTime() {
     const now = new Date();
     const fecha = now.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -131,7 +113,6 @@ function updateHeaderDateTime() {
 setInterval(updateHeaderDateTime, 1000);
 updateHeaderDateTime();
 
-// Modal de soporte técnico
 function showSoporteModal(e) {
     e.preventDefault();
     document.getElementById('soporte-modal').classList.remove('hidden');
@@ -152,14 +133,11 @@ function mostrarToastCopiado() {
     }, 2000);
 }
 
-// Resumen del día en el header
 async function cargarResumenDiaHeader() {
     try {
-        // Clientes activos
         const clientesResp = await fetch("/clientes/api/clientes/");
         const clientesData = await clientesResp.json();
         document.getElementById('header-total-clientes').textContent = clientesData.clientes.length;
-        // Despachos de hoy
         const despachosResp = await fetch("/clientes/api/despachos-hoy/");
         const despachosData = await despachosResp.json();
         document.getElementById('header-total-despachos').textContent = despachosData.despachos.length;
