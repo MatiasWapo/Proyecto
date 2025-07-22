@@ -369,6 +369,19 @@ class ClienteUpdateView(UpdateView):
         if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'empresa':
             return acceso_denegado_conductor(request)
         return super().dispatch(request, *args, **kwargs)
+    def get_object(self, queryset=None):
+        cliente = super().get_object(queryset)
+        # Recalcular debe_total cada vez que se entra a editar
+        despachos_todos = cliente.despacho_set.all()
+        total_despachos = despachos_todos.aggregate(total=models.Sum('total'))['total'] or 0
+        total_pagos = cliente.pagos.aggregate(total=models.Sum('monto'))['total'] or 0
+        cliente.saldo = total_despachos - total_pagos
+        if float(cliente.precio_botellon) > 0:
+            cliente.debe_total = int(round(float(cliente.saldo) / float(cliente.precio_botellon))) if float(cliente.saldo) > 0 else 0
+        else:
+            cliente.debe_total = 0
+        cliente.save()
+        return cliente
     def post(self, request, *args, **kwargs):
         # Manejar desactivación desde la lista
         if "activo" in request.POST and request.POST.get("activo") == "false":
@@ -391,10 +404,24 @@ class ClienteUpdateView(UpdateView):
         total_despachos = despachos_todos.aggregate(total=models.Sum('total'))['total'] or 0
         total_pagos = cliente.pagos.aggregate(total=models.Sum('monto'))['total'] or 0
         cliente.saldo = total_despachos - total_pagos
+        # Recalcular debe_total (botellones adeudados)
+        if cliente.precio_botellon > 0:
+            cliente.debe_total = int(round(cliente.saldo / float(cliente.precio_botellon))) if cliente.saldo > 0 else 0
+        else:
+            cliente.debe_total = 0
         cliente.save()
         if actualizados > 0:
             messages.success(self.request, f"Se actualizaron {actualizados} despachos al nuevo precio y se recalculó la deuda.")
         return response
+    def get_context_data(self, **kwargs):
+        # Comentario detallado: Este método asegura que el template reciba el objeto 'cliente' correctamente.
+        context = super().get_context_data(**kwargs)
+        context['cliente'] = self.object
+        # Log para depuración (aparecerá en consola del servidor)
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"[DEBUG] Contexto en editar_cliente: cliente={self.object} debe_total={self.object.debe_total} saldo={self.object.saldo}")
+        return context
 
 class ClienteDetailView(DetailView):
     model = Cliente

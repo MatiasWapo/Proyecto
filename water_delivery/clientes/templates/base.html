@@ -38,6 +38,9 @@
         {% block content %}{% endblock %}
     </main>
 
-    {% include 'partials/footer.html' %}
+    {# Footer solo si no es login, register o recuperación #}
+    {% block footer %}
+        {% include 'partials/footer.html' %}
+    {% endblock %}
 </body>
 </html>
