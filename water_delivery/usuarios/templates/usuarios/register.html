@@ -23,6 +23,8 @@
 </div>
 {% endif %}
 
+<div id="register-toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 hidden w-full max-w-xs bg-red-100 text-red-800 border-l-4 border-red-500 p-4 rounded-lg shadow-lg text-center"></div>
+
 <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-agua-light/20 to-agua-blue/30">
     <div class="max-w-4xl w-full space-y-8">
         <!-- Logo y título -->
@@ -342,6 +344,12 @@
 
 <!-- JavaScript -->
 <script>
+function showRegisterToast(msg) {
+    const toast = document.getElementById('register-toast');
+    toast.textContent = msg;
+    toast.classList.remove('hidden');
+    setTimeout(() => { toast.classList.add('hidden'); }, 3500);
+}
 // Función para mostrar/ocultar contraseña
 function togglePassword(fieldId, button) {
     const field = document.getElementById(fieldId);
@@ -366,7 +374,7 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
         if (!termsCheckbox.checked) {
             e.preventDefault();
-            alert('Debes aceptar los términos y condiciones para continuar.');
+            showRegisterToast('Debes aceptar los términos y condiciones para continuar.');
             return false;
         }
         
@@ -397,13 +405,13 @@ function validateForm() {
     
     // Validar formato de teléfono (simple validación)
     if (!telefono.startsWith('+')) {
-        alert('El teléfono debe comenzar con + (formato internacional)');
+        showRegisterToast('El teléfono debe comenzar con + (formato internacional)');
         return false;
     }
     
     // Validar que las contraseñas coincidan
     if (password1 !== password2) {
-        alert('Las contraseñas no coinciden');
+        showRegisterToast('Las contraseñas no coinciden');
         return false;
     }
     
@@ -416,7 +424,7 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
     
     if (!termsCheckbox.checked) {
         e.preventDefault();
-        alert('Debes aceptar los términos y condiciones para continuar.');
+        showRegisterToast('Debes aceptar los términos y condiciones para continuar.');
         return false;
     }
     
