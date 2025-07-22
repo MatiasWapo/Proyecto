@@ -3,6 +3,9 @@
 {% block content %}
 <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg">
     <h2 class="text-2xl font-bold mb-6 text-gray-800">Restablecer Contraseña</h2>
+    {% if usuario %}
+    <p class="mb-6 text-center text-agua-blue font-semibold">Se está cambiando la contraseña al usuario: <span class="font-bold">{{ usuario.username }}</span></p>
+    {% endif %}
     
     {% if form.errors %}
     <div class="mb-4 p-4 bg-red-100 text-red-700 rounded">

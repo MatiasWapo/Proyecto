@@ -115,38 +115,21 @@ class ResetearConTokenView(FormView):
             messages.error(request, 'El enlace de recuperación no es válido o ha expirado.')
             return redirect('usuarios:recuperar')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['usuario'] = self.usuario
+        return context
+
     def form_valid(self, form):
         nueva_password = form.cleaned_data['nueva_password']
-        
         try:
-            # Bloque atómico para garantizar la integridad
             with transaction.atomic():
-                # 1. Actualizar contraseña
                 self.usuario.set_password(nueva_password)
-                
-                # 2. Invalidar token
                 self.usuario.token_recuperacion = None
                 self.usuario.token_recuperacion_fecha = None
-                
-                # 3. Guardar explícitamente los campos necesarios
-                self.usuario.save(update_fields=[
-                    'password', 
-                    'token_recuperacion',
-                    'token_recuperacion_fecha'
-                ])
-                
-                # 4. Forzar la escritura en la BD
-                from django.db import connection
-                connection.commit()
-                
-                # 5. Verificación inmediata
-                usuario_refreshed = Usuario.objects.get(pk=self.usuario.pk)
-                if not usuario_refreshed.check_password(nueva_password):
-                    raise ValueError("La contraseña no se actualizó en la BD")
-                
+                self.usuario.save()
                 messages.success(self.request, '¡Contraseña actualizada correctamente!')
                 return super().form_valid(form)
-                
         except Exception as e:
             messages.error(self.request, f'Error crítico: {str(e)}')
             return self.form_invalid(form)
