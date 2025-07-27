@@ -314,6 +314,8 @@ class ClienteListView(ListView):
     def get_queryset(self):
         # MOSTRAR TODOS LOS CLIENTES (activos e inactivos)
         queryset = Cliente.objects.all()
+        
+        # Filtro de búsqueda por texto
         buscar = self.request.GET.get('buscar')
         if buscar:
             queryset = queryset.filter(
@@ -321,6 +323,19 @@ class ClienteListView(ListView):
                 Q(apellido__icontains=buscar) |
                 Q(telefono__icontains=buscar)
             )
+        
+        # Filtro por estado/deuda
+        filtro = self.request.GET.get('filtro')
+        if filtro:
+            if filtro == 'activos':
+                queryset = queryset.filter(activo=True)
+            elif filtro == 'inactivos':
+                queryset = queryset.filter(activo=False)
+            elif filtro == 'con_deuda':
+                queryset = queryset.filter(saldo__gt=0)  # Clientes que deben dinero
+            elif filtro == 'saldo_favor':
+                queryset = queryset.filter(saldo__lt=0)  # Clientes con saldo a favor
+        
         return queryset.order_by('-activo', 'nombre')  # Activos primero
 
     def get_context_data(self, **kwargs):

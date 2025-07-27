@@ -47,7 +47,8 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <div class="lg:col-span-1 order-2 lg:order-1 mt-6 lg:mt-0">
+            <!-- Formulario Nuevo Despacho - Primero en móvil, izquierda en desktop -->
+            <div class="lg:col-span-1 order-1 lg:order-1 mt-6 lg:mt-0">
                 <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 sticky top-6">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-2">
                         <h2 class="text-lg sm:text-xl font-bold text-gray-900 flex items-center">
@@ -74,6 +75,10 @@
                                     required>
                                 <option value="">Seleccionar cliente...</option>
                             </select>
+                            <p class="text-xs text-gray-500 mt-1">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Escribe para buscar clientes por nombre, apellido o ubicación
+                            </p>
                         </div>
 
                         
@@ -171,7 +176,8 @@
                 </div>
             </div>
             
-            <div class="lg:col-span-2 order-1 lg:order-2">
+            <!-- Lista de Despachos - Segundo en móvil, derecha en desktop -->
+            <div class="lg:col-span-2 order-2 lg:order-2">
                 <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-2">
                         <h2 class="text-lg sm:text-xl font-bold text-gray-900 flex items-center">
@@ -534,5 +540,106 @@ function showMessage(message, type) {
         toast.remove();
     }, 3000);
 }
+
+// Inicializar Select2 para el select de clientes
+$(document).ready(function() {
+    $('#cliente-select').select2({
+        placeholder: 'Seleccionar cliente...',
+        allowClear: true,
+        width: '100%',
+        language: {
+            noResults: function() {
+                return "No se encontraron clientes";
+            },
+            searching: function() {
+                return "Buscando...";
+            }
+        },
+        templateResult: function(data) {
+            if (!data.id) return data.text;
+            return $(`<span><i class="fas fa-user mr-2 text-green-500"></i>${data.text}</span>`);
+        },
+        templateSelection: function(data) {
+            if (!data.id) return data.text;
+            return $(`<span><i class="fas fa-user mr-2 text-green-500"></i>${data.text}</span>`);
+        }
+    });
+});
 </script>
+
+<!-- Select2 CSS y JS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<style>
+/* Estilos personalizados para Select2 */
+.select2-container--default .select2-selection--single {
+    height: 48px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fafafa;
+    transition: all 0.3s ease;
+}
+
+.select2-container--default .select2-selection--single:focus,
+.select2-container--default.select2-container--open .select2-selection--single {
+    border-color: #0891b2;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 44px;
+    padding-left: 16px;
+    color: #374151;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 46px;
+    right: 16px;
+}
+
+.select2-dropdown {
+    border: 2px solid #0891b2;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(8, 145, 178, 0.15);
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field {
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field:focus {
+    border-color: #0891b2;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #0891b2;
+}
+
+.select2-results__option {
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .select2-container--default .select2-selection--single {
+        height: 44px;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 40px;
+        font-size: 14px;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 42px;
+    }
+}
+</style>
 {% endblock %}
