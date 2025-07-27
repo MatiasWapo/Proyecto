@@ -18,6 +18,7 @@ from django.db.models import Q
 from datetime import date, datetime
 import json
 from .models import Cliente, Despacho, Pago
+from .forms import ClienteForm, ClienteEditForm
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.contrib import messages
@@ -352,17 +353,78 @@ class ClienteListView(ListView):
 
 class ClienteCreateView(CreateView):
     model = Cliente
-    fields = ["nombre", "apellido", "direccion", "telefono", "precio_botellon"]
+    form_class = ClienteForm
     template_name = "clientes/nuevo_cliente.html"
     success_url = reverse_lazy('clientes:lista_clientes')
+    
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'empresa':
             return acceso_denegado_conductor(request)
         return super().dispatch(request, *args, **kwargs)
+    
+    def get_initial(self):
+        """
+        Establece valores iniciales para el formulario.
+        Asegura que el precio del botellón tenga el valor por defecto correcto.
+        """
+        initial = super().get_initial()
+        initial['precio_botellon'] = Decimal('2.50')
+        return initial
+    
+    def post(self, request, *args, **kwargs):
+        """
+        Maneja el envío del formulario POST.
+        Asegura que el precio del botellón se procese correctamente.
+        """
+        # Log para depuración
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"[DEBUG] POST data: {request.POST}")
+        
+        # Procesar el formulario normalmente
+        return super().post(request, *args, **kwargs)
+    
+    def form_valid(self, form):
+        """
+        Método que se ejecuta cuando el formulario es válido.
+        Asegura que el precio del botellón se guarde correctamente.
+        """
+        # Log para depuración
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"[DEBUG] form_valid - datos limpios: {form.cleaned_data}")
+        logger.info(f"[DEBUG] POST data: {self.request.POST}")
+        
+        # Obtener el precio del formulario
+        precio_form = form.cleaned_data.get('precio_botellon')
+        logger.info(f"[DEBUG] Precio del formulario: {precio_form}")
+        
+        # Llamar al método padre para guardar el cliente
+        response = super().form_valid(form)
+        
+        # Obtener el cliente creado
+        cliente = self.object
+        logger.info(f"[DEBUG] Cliente creado: {cliente.nombre} {cliente.apellido}, precio: {cliente.precio_botellon}")
+        
+        # Verificar que el precio se guardó correctamente
+        if precio_form and precio_form != Decimal('2.50'):
+            # Si se especificó un precio diferente, asegurarse de que se guarde
+            if cliente.precio_botellon != precio_form:
+                logger.info(f"[DEBUG] Actualizando precio de {cliente.precio_botellon} a {precio_form}")
+                cliente.precio_botellon = precio_form
+                cliente.save()
+        
+        # Mostrar mensaje de éxito
+        messages.success(
+            self.request, 
+            f'Cliente "{cliente.nombre} {cliente.apellido}" creado exitosamente con precio de botellón: ${cliente.precio_botellon}'
+        )
+        
+        return response
 
 class ClienteUpdateView(UpdateView):
     model = Cliente
-    fields = ["nombre", "apellido", "direccion", "telefono", "activo", "precio_botellon"]
+    form_class = ClienteEditForm
     template_name = "clientes/editar_cliente.html"
     success_url = reverse_lazy('clientes:lista_clientes')
     def dispatch(self, request, *args, **kwargs):
@@ -405,8 +467,8 @@ class ClienteUpdateView(UpdateView):
         total_pagos = cliente.pagos.aggregate(total=models.Sum('monto'))['total'] or 0
         cliente.saldo = total_despachos - total_pagos
         # Recalcular debe_total (botellones adeudados)
-        if cliente.precio_botellon > 0:
-            cliente.debe_total = int(round(cliente.saldo / float(cliente.precio_botellon))) if cliente.saldo > 0 else 0
+        if float(cliente.precio_botellon) > 0:
+            cliente.debe_total = int(round(float(cliente.saldo) / float(cliente.precio_botellon))) if float(cliente.saldo) > 0 else 0
         else:
             cliente.debe_total = 0
         cliente.save()
@@ -596,3 +658,4 @@ def eliminar_despacho(request, pk):
         messages.success(request, 'Despacho eliminado correctamente.')
         return redirect('clientes:detalle_cliente', pk=cliente.pk)
     return redirect('clientes:detalle_cliente', pk=cliente.pk)
+

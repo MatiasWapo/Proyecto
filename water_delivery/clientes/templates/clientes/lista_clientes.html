@@ -98,6 +98,7 @@
                                     <th class="px-4 py-3 text-center font-bold text-agua-dark text-base font-sans tracking-wide">CLIENTE</th>
                                     <th class="px-4 py-3 text-center font-bold text-agua-dark text-base font-sans tracking-wide">CONTACTO</th>
                                     <th class="px-4 py-3 text-center font-bold text-agua-dark text-base font-sans tracking-wide">DIRECCIÓN</th>
+                                    <th class="px-4 py-3 text-center font-bold text-agua-dark text-base font-sans tracking-wide">PRECIO BOTELLÓN</th>
                                     <th class="px-4 py-3 text-center font-bold text-agua-dark text-base font-sans tracking-wide">ESTADO</th>
                                     <th class="px-4 py-3 text-center font-bold text-agua-dark text-base font-sans tracking-wide">ACCIONES</th>
                                 </tr>
@@ -137,6 +138,12 @@
                                     </td>
                                     <td class="py-3 text-center align-middle">
                                         <span class="text-base font-sans">{{ cliente.direccion }}</span>
+                                    </td>
+                                    <td class="py-3 text-center align-middle">
+                                        <span class="precio-botellon font-semibold text-base font-sans tracking-wide text-green-600">
+                                            <i class="fas fa-dollar-sign me-1"></i>
+                                            ${{ cliente.precio_botellon|floatformat:2 }}
+                                        </span>
                                     </td>
                                     <td class="py-3 flex flex-col items-center justify-center text-center align-middle">
                                         <span class="deuda-botellones flex items-center gap-1 font-bold text-base font-sans tracking-wide {% if info.botellones_color == 'red' %}text-red-600{% elif info.botellones_color == 'green' %}text-green-600{% else %}text-gray-600{% endif %}">
