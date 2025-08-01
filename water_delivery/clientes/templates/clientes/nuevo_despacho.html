@@ -75,6 +75,7 @@
                                     required>
                                 <option value="">Seleccionar cliente...</option>
                             </select>
+                            <div id="cliente-error" class="text-red-500 text-xs mt-1 hidden"></div>
                             <p class="text-xs text-gray-500 mt-1">
                                 <i class="fas fa-info-circle mr-1"></i>
                                 Escribe para buscar clientes por nombre, apellido o ubicación
@@ -95,6 +96,7 @@
                                 <input type="number" 
                                        id="cantidad-botellones" 
                                        min="1" 
+                                       max="99"
                                        value="1"
                                        class="flex-1 px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-center font-bold text-base sm:text-lg"
                                        required>
@@ -103,6 +105,7 @@
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
+                            <div id="cantidad-error" class="text-red-500 text-xs mt-1 hidden"></div>
                         </div>
                         
                         <div>
@@ -112,8 +115,14 @@
                             </label>
                             <textarea id="notas" 
                                       rows="3"
+                                      maxlength="500"
                                       placeholder="Agregar notas del despacho..."
                                       class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 resize-none"></textarea>
+                            <div id="notas-error" class="text-red-500 text-xs mt-1 hidden"></div>
+                            <p class="text-xs text-gray-500 mt-1">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Máximo 500 caracteres
+                            </p>
                         </div>
                         
                         <button type="submit" 
@@ -134,28 +143,42 @@
                                 <input type="text" 
                                        id="cliente-nombre" 
                                        placeholder="Nombre del cliente"
+                                       maxlength="50"
+                                       pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+"
+                                       title="Solo letras y espacios permitidos"
                                        class="w-full px-2 sm:px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                        required>
+                                <div id="modal-nombre-error" class="text-red-500 text-xs mt-1 hidden"></div>
                             </div>
                             <div>
                                 <input type="text" 
                                        id="cliente-apellido" 
                                        placeholder="Apellido del cliente"
+                                       maxlength="50"
+                                       pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+"
+                                       title="Solo letras y espacios permitidos"
                                        class="w-full px-2 sm:px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                        required>
+                                <div id="modal-apellido-error" class="text-red-500 text-xs mt-1 hidden"></div>
                             </div>
                             <div>
                                 <input type="text" 
                                        id="cliente-telefono" 
                                        placeholder="Teléfono"
+                                       maxlength="13"
+                                       pattern="[0-9+\-\s()]+"
+                                       title="Solo números, espacios, guiones, paréntesis y + permitidos"
                                        class="w-full px-2 sm:px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <div id="modal-telefono-error" class="text-red-500 text-xs mt-1 hidden"></div>
                             </div>
                             <div>
                                 <textarea id="cliente-direccion" 
                                           rows="2"
                                           placeholder="Dirección"
+                                          maxlength="200"
                                           class="w-full px-2 sm:px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                                           required></textarea>
+                                <div id="modal-direccion-error" class="text-red-500 text-xs mt-1 hidden"></div>
                             </div>
 
                             <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
@@ -192,7 +215,7 @@
                         </div>
                     </div>
                     
-                    <div id="despachos-list" class="space-y-3 overflow-x-auto">
+                    <div id="despachos-list" class="space-y-3">
                         <div class="text-center py-8 text-gray-500">
                             <i class="fas fa-spinner fa-spin text-4xl mb-4"></i>
                             <p>Cargando despachos...</p>
@@ -323,34 +346,34 @@ async function loadDespachos() {
         
         container.innerHTML = data.despachos.map(despacho => `
             <div class="bg-gray-50 rounded-lg p-4 border-l-4 ${despacho.entregado ? 'border-green-500' : 'border-yellow-500'} hover:shadow-md transition-shadow">
-                <div class="flex justify-between items-start">
-                    <div class="flex-1">
-                        <div class="flex items-center space-x-3 mb-2">
-                            <h3 class="font-semibold text-gray-900">${despacho.cliente}</h3>
-                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                <div class="flex flex-col sm:flex-row justify-between items-start gap-3">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-wrap items-center gap-2 mb-2">
+                            <h3 class="font-semibold text-gray-900 truncate">${despacho.cliente}</h3>
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full whitespace-nowrap">
                                 ${despacho.cantidad} botellones
                             </span>
-                            <span class="text-sm text-gray-500">${despacho.hora}</span>
+                            <span class="text-sm text-gray-500 whitespace-nowrap">${despacho.hora}</span>
                             ${despacho.entregado ? 
-                                '<span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Entregado</span>' : 
-                                '<span class="bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">Pendiente</span>'
+                                '<span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full whitespace-nowrap">Entregado</span>' : 
+                                '<span class="bg-yellow-500 text-white text-xs px-2 py-1 rounded-full whitespace-nowrap">Pendiente</span>'
                             }
                         </div>
-                        <p class="text-sm text-gray-600 mb-1">
+                        <p class="text-sm text-gray-600 mb-1 truncate">
                             <i class="fas fa-map-marker-alt mr-1"></i>
                             ${despacho.direccion}
                         </p>
-                        ${despacho.notas ? `<p class="text-sm text-gray-500 italic">${despacho.notas}</p>` : ''}
+                        ${despacho.notas ? `<p class="text-sm text-gray-500 italic truncate">${despacho.notas}</p>` : ''}
                     </div>
-                    <div class="flex space-x-2">
+                    <div class="flex space-x-2 flex-shrink-0">
                         ${!despacho.entregado ? `
                             <button onclick="marcarEntregado(${despacho.id})" 
-                                    class="text-green-500 hover:text-green-700 p-1" title="Marcar como entregado">
+                                    class="text-green-500 hover:text-green-700 p-2 rounded-lg hover:bg-green-50 transition-colors" title="Marcar como entregado">
                                 <i class="fas fa-check"></i>
                             </button>
                         ` : ''}
                         <button onclick="showConfirmEliminarDespacho(${despacho.id})" 
-                                class="text-red-500 hover:text-red-700 p-1" title="Eliminar">
+                                class="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors" title="Eliminar">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -371,6 +394,78 @@ function updateStats(despachos) {
     document.getElementById('total-clientes').textContent = new Set(despachos.map(d => d.cliente)).size;
 }
 
+// Funciones de validación
+function showError(elementId, message) {
+    const errorDiv = document.getElementById(elementId);
+    errorDiv.textContent = message;
+    errorDiv.classList.remove('hidden');
+}
+
+function hideError(elementId) {
+    const errorDiv = document.getElementById(elementId);
+    errorDiv.classList.add('hidden');
+}
+
+// Validaciones en tiempo real
+document.addEventListener('DOMContentLoaded', function() {
+    const clienteSelect = document.getElementById('cliente-select');
+    const cantidadInput = document.getElementById('cantidad-botellones');
+    const notasTextarea = document.getElementById('notas');
+    
+    // Validación de cliente
+    if (clienteSelect) {
+        clienteSelect.addEventListener('change', function() {
+            if (!this.value) {
+                showError('cliente-error', 'Por favor selecciona un cliente.');
+                this.classList.add('border-red-500');
+                this.classList.remove('border-green-500');
+            } else {
+                hideError('cliente-error');
+                this.classList.remove('border-red-500');
+                this.classList.add('border-green-500');
+            }
+        });
+    }
+    
+    // Validación de cantidad
+    if (cantidadInput) {
+        cantidadInput.addEventListener('input', function() {
+            const value = parseInt(this.value);
+            
+            if (isNaN(value) || value < 1) {
+                showError('cantidad-error', 'La cantidad debe ser al menos 1 botellón.');
+                this.classList.add('border-red-500');
+                this.classList.remove('border-green-500');
+            } else if (value > 99) {
+                showError('cantidad-error', 'La cantidad no puede ser mayor a 99 botellones.');
+                this.classList.add('border-red-500');
+                this.classList.remove('border-green-500');
+            } else {
+                hideError('cantidad-error');
+                this.classList.remove('border-red-500');
+                this.classList.add('border-green-500');
+            }
+        });
+    }
+    
+    // Validación de notas
+    if (notasTextarea) {
+        notasTextarea.addEventListener('input', function() {
+            const value = this.value.trim();
+            
+            if (value.length > 500) {
+                showError('notas-error', 'Las notas no pueden tener más de 500 caracteres.');
+                this.classList.add('border-red-500');
+                this.classList.remove('border-green-500');
+            } else {
+                hideError('notas-error');
+                this.classList.remove('border-red-500');
+                this.classList.add('border-green-500');
+            }
+        });
+    }
+});
+
 async function handleDespachoSubmit(e) {
     e.preventDefault();
     
@@ -378,8 +473,27 @@ async function handleDespachoSubmit(e) {
     const cantidad = document.getElementById('cantidad-botellones').value;
     const notas = document.getElementById('notas').value;
     
+    // Validaciones antes de enviar
+    let hasErrors = false;
+    
     if (!clienteId) {
-        showMessage('Por favor selecciona un cliente', 'error');
+        showError('cliente-error', 'Por favor selecciona un cliente.');
+        hasErrors = true;
+    }
+    
+    const cantidadNum = parseInt(cantidad);
+    if (isNaN(cantidadNum) || cantidadNum < 1 || cantidadNum > 99) {
+        showError('cantidad-error', 'La cantidad debe ser entre 1 y 99 botellones.');
+        hasErrors = true;
+    }
+    
+    if (notas.length > 500) {
+        showError('notas-error', 'Las notas no pueden tener más de 500 caracteres.');
+        hasErrors = true;
+    }
+    
+    if (hasErrors) {
+        showMessage('Por favor, corrige los errores antes de enviar el formulario.', 'error');
         return;
     }
     
@@ -414,16 +528,169 @@ async function handleDespachoSubmit(e) {
         console.error('Error:', error);
         showMessage('Error al registrar despacho', 'error');
     } finally {
-        btnText.innerHTML = '<i class="fas fa-save mr-2"></i>Registrar Despacho';
+        btnText.innerHTML = 'Registrar Despacho';
     }
 }
 
+// Validaciones para el formulario modal de cliente
+document.addEventListener('DOMContentLoaded', function() {
+    const modalNombreInput = document.getElementById('cliente-nombre');
+    const modalApellidoInput = document.getElementById('cliente-apellido');
+    const modalTelefonoInput = document.getElementById('cliente-telefono');
+    const modalDireccionInput = document.getElementById('cliente-direccion');
+    
+    // Validación de nombre en modal
+    if (modalNombreInput) {
+        modalNombreInput.addEventListener('input', function() {
+            const value = this.value.trim();
+            
+            if (value.length === 0) {
+                showError('modal-nombre-error', 'El nombre es obligatorio.');
+                this.classList.add('border-red-500');
+                this.classList.remove('border-green-500');
+            } else if (value.length < 2) {
+                showError('modal-nombre-error', 'El nombre debe tener al menos 2 caracteres.');
+                this.classList.add('border-red-500');
+                this.classList.remove('border-green-500');
+            } else if (value.length > 50) {
+                showError('modal-nombre-error', 'El nombre no puede tener más de 50 caracteres.');
+                this.classList.add('border-red-500');
+                this.classList.remove('border-green-500');
+            } else if (!/^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+                showError('modal-nombre-error', 'El nombre solo puede contener letras y espacios.');
+                this.classList.add('border-red-500');
+                this.classList.remove('border-green-500');
+            } else {
+                hideError('modal-nombre-error');
+                this.classList.remove('border-red-500');
+                this.classList.add('border-green-500');
+            }
+        });
+    }
+    
+    // Validación de apellido en modal
+    if (modalApellidoInput) {
+        modalApellidoInput.addEventListener('input', function() {
+            const value = this.value.trim();
+            
+            if (value.length === 0) {
+                showError('modal-apellido-error', 'El apellido es obligatorio.');
+                this.classList.add('border-red-500');
+                this.classList.remove('border-green-500');
+            } else if (value.length < 2) {
+                showError('modal-apellido-error', 'El apellido debe tener al menos 2 caracteres.');
+                this.classList.add('border-red-500');
+                this.classList.remove('border-green-500');
+            } else if (value.length > 50) {
+                showError('modal-apellido-error', 'El apellido no puede tener más de 50 caracteres.');
+                this.classList.add('border-red-500');
+                this.classList.remove('border-green-500');
+            } else if (!/^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+                showError('modal-apellido-error', 'El apellido solo puede contener letras y espacios.');
+                this.classList.add('border-red-500');
+                this.classList.remove('border-green-500');
+            } else {
+                hideError('modal-apellido-error');
+                this.classList.remove('border-red-500');
+                this.classList.add('border-green-500');
+            }
+        });
+    }
+    
+    // Validación de teléfono en modal
+    if (modalTelefonoInput) {
+        modalTelefonoInput.addEventListener('input', function() {
+            const value = this.value.trim();
+            
+            if (value.length === 0) {
+                hideError('modal-telefono-error');
+                this.classList.remove('border-red-500', 'border-green-500');
+                return; // Teléfono es opcional
+            }
+            
+            if (value.length > 13) {
+                showError('modal-telefono-error', 'El teléfono no puede tener más de 13 caracteres.');
+                this.classList.add('border-red-500');
+                this.classList.remove('border-green-500');
+            } else if (!/^[0-9+\-\s()]+$/.test(value)) {
+                showError('modal-telefono-error', 'El teléfono solo puede contener números, espacios, guiones, paréntesis y +.');
+                this.classList.add('border-red-500');
+                this.classList.remove('border-green-500');
+            } else {
+                const digitos = value.match(/\d/g);
+                if (digitos && digitos.length < 7) {
+                    showError('modal-telefono-error', 'El teléfono debe tener al menos 7 dígitos.');
+                    this.classList.add('border-red-500');
+                    this.classList.remove('border-green-500');
+                } else if (digitos && digitos.length > 11) {
+                    showError('modal-telefono-error', 'El teléfono no puede tener más de 11 dígitos.');
+                    this.classList.add('border-red-500');
+                    this.classList.remove('border-green-500');
+                } else {
+                    hideError('modal-telefono-error');
+                    this.classList.remove('border-red-500');
+                    this.classList.add('border-green-500');
+                }
+            }
+        });
+    }
+    
+    // Validación de dirección en modal
+    if (modalDireccionInput) {
+        modalDireccionInput.addEventListener('input', function() {
+            const value = this.value.trim();
+            
+            if (value.length === 0) {
+                showError('modal-direccion-error', 'La dirección es obligatoria.');
+                this.classList.add('border-red-500');
+                this.classList.remove('border-green-500');
+            } else if (value.length < 10) {
+                showError('modal-direccion-error', 'La dirección debe tener al menos 10 caracteres.');
+                this.classList.add('border-red-500');
+                this.classList.remove('border-green-500');
+            } else if (value.length > 200) {
+                showError('modal-direccion-error', 'La dirección no puede tener más de 200 caracteres.');
+                this.classList.add('border-red-500');
+                this.classList.remove('border-green-500');
+            } else {
+                hideError('modal-direccion-error');
+                this.classList.remove('border-red-500');
+                this.classList.add('border-green-500');
+            }
+        });
+    }
+});
+
 async function handleClienteSubmit(e) {
     e.preventDefault();
-    const nombre = document.getElementById('cliente-nombre').value;
-    const apellido = document.getElementById('cliente-apellido').value;
-    const telefono = document.getElementById('cliente-telefono').value;
-    const direccion = document.getElementById('cliente-direccion').value;
+    const nombre = document.getElementById('cliente-nombre').value.trim();
+    const apellido = document.getElementById('cliente-apellido').value.trim();
+    const telefono = document.getElementById('cliente-telefono').value.trim();
+    const direccion = document.getElementById('cliente-direccion').value.trim();
+    
+    // Validaciones antes de enviar
+    let hasErrors = false;
+    
+    if (nombre.length < 2) {
+        showError('modal-nombre-error', 'El nombre debe tener al menos 2 caracteres.');
+        hasErrors = true;
+    }
+    
+    if (apellido.length < 2) {
+        showError('modal-apellido-error', 'El apellido debe tener al menos 2 caracteres.');
+        hasErrors = true;
+    }
+    
+    if (direccion.length < 10) {
+        showError('modal-direccion-error', 'La dirección debe tener al menos 10 caracteres.');
+        hasErrors = true;
+    }
+    
+    if (hasErrors) {
+        showMessage('Por favor, corrige los errores antes de enviar el formulario.', 'error');
+        return;
+    }
+    
     try {
         const response = await fetch(API_URLS.crearCliente, {
             method: 'POST',

@@ -55,3 +55,88 @@ class Pago(models.Model):
     def __str__(self):
         """Representación legible del pago"""
         return f"Pago de {self.monto} $ de {self.cliente} el {self.fecha.strftime('%d/%m/%Y')}"
+
+class UbicacionCamion(models.Model):
+    """
+    Modelo para almacenar la ubicación del camión en tiempo real.
+    Permite rastrear la posición del conductor durante las entregas.
+    """
+    conductor = models.ForeignKey('usuarios.Usuario', on_delete=models.CASCADE, related_name='ubicaciones')
+    latitud = models.DecimalField(max_digits=10, decimal_places=8, help_text="Latitud de la ubicación")
+    longitud = models.DecimalField(max_digits=11, decimal_places=8, help_text="Longitud de la ubicación")
+    direccion = models.CharField(max_length=255, blank=True, help_text="Dirección aproximada de la ubicación")
+    velocidad = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="Velocidad en km/h")
+    bateria = models.IntegerField(null=True, blank=True, help_text="Porcentaje de batería del dispositivo")
+    senal_gps = models.CharField(max_length=20, default='Buena', help_text="Calidad de la señal GPS")
+    timestamp = models.DateTimeField(auto_now_add=True, help_text="Momento exacto de la ubicación")
+    activo = models.BooleanField(default=True, help_text="Indica si esta ubicación está activa")
+    
+    class Meta:
+        verbose_name = "Ubicación del Camión"
+        verbose_name_plural = "Ubicaciones del Camión"
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['conductor', '-timestamp']),
+            models.Index(fields=['activo', '-timestamp']),
+        ]
+    
+    def __str__(self):
+        return f"{self.conductor} - {self.timestamp.strftime('%d/%m/%Y %H:%M')}"
+    
+    @property
+    def coordenadas(self):
+        """Retorna las coordenadas como diccionario."""
+        return {
+            'lat': float(self.latitud),
+            'lng': float(self.longitud)
+        }
+    
+    @property
+    def tiempo_transcurrido(self):
+        """Calcula el tiempo transcurrido desde la ubicación."""
+        from django.utils import timezone
+        ahora = timezone.now()
+        diferencia = ahora - self.timestamp
+        minutos = int(diferencia.total_seconds() / 60)
+        
+        if minutos < 1:
+            return "Hace menos de 1 minuto"
+        elif minutos == 1:
+            return "Hace 1 minuto"
+        elif minutos < 60:
+            return f"Hace {minutos} minutos"
+        else:
+            horas = minutos // 60
+            return f"Hace {horas} hora{'s' if horas != 1 else ''}"
+
+class ConfiguracionRastreo(models.Model):
+    """
+    Modelo para configurar el rastreo del camión.
+    Permite personalizar la frecuencia de actualización y otros parámetros.
+    """
+    empresa = models.ForeignKey('usuarios.Usuario', on_delete=models.CASCADE, related_name='configuraciones_rastreo')
+    conductor_asignado = models.ForeignKey('usuarios.Usuario', on_delete=models.CASCADE, related_name='rastreo_asignado', null=True, blank=True)
+    frecuencia_actualizacion = models.IntegerField(default=60, help_text="Frecuencia de actualización en segundos")
+    rastreo_activo = models.BooleanField(default=True, help_text="Indica si el rastreo está activo")
+    radio_alertas = models.DecimalField(max_digits=5, decimal_places=2, default=5.0, help_text="Radio en km para alertas de zona")
+    notificaciones_email = models.BooleanField(default=True, help_text="Enviar notificaciones por email")
+    notificaciones_push = models.BooleanField(default=True, help_text="Enviar notificaciones push")
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_modificacion = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Configuración de Rastreo"
+        verbose_name_plural = "Configuraciones de Rastreo"
+        unique_together = ['empresa', 'conductor_asignado']
+    
+    def __str__(self):
+        return f"Rastreo de {self.conductor_asignado} - {self.empresa}"
+    
+    @property
+    def frecuencia_minutos(self):
+        """Retorna la frecuencia en formato legible."""
+        if self.frecuencia_actualizacion < 60:
+            return f"{self.frecuencia_actualizacion} segundos"
+        else:
+            minutos = self.frecuencia_actualizacion // 60
+            return f"{minutos} minuto{'s' if minutos != 1 else ''}"

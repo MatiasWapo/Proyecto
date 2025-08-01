@@ -17,7 +17,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from datetime import date, datetime
 import json
-from .models import Cliente, Despacho, Pago
+from .models import Cliente, Despacho, Pago, UbicacionCamion, ConfiguracionRastreo
 from .forms import ClienteForm, ClienteEditForm
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
@@ -92,14 +92,18 @@ def dashboard(request):
     Vista para el panel de control principal.
     Muestra resumen de clientes activos, deuda total y despachos pendientes.
     """
+    from datetime import datetime
+    
     total_clientes = Cliente.objects.filter(activo=True).count()
     total_deuda = Cliente.objects.aggregate(Sum('debe_total'))['debe_total__sum'] or 0
     despachos_pendientes = Despacho.objects.filter(entregado=False).count()
+    fecha_actual = datetime.now().strftime('%d/%m/%Y %H:%M')
     
     return render(request, 'clientes/dashboard.html', {
         'total_clientes': total_clientes,
         'total_deuda': total_deuda,
         'despachos_pendientes': despachos_pendientes,
+        'fecha_actual': fecha_actual,
     })
 
 @solo_empresa
@@ -640,6 +644,100 @@ def api_despachos_recientes(request):
     
     return JsonResponse({'dias': resultado})
 
+@csrf_exempt
+@require_http_methods(["POST"])
+@login_required
+def api_guardar_ubicacion(request):
+    """
+    API para guardar la ubicación del camión en tiempo real.
+    Recibe latitud, longitud y precisión del GPS del conductor.
+    """
+    try:
+        # Verificar que el usuario sea conductor
+        if not hasattr(request.user, 'tipo_usuario') or request.user.tipo_usuario != 'conductor':
+            return JsonResponse({
+                'success': False,
+                'message': 'Solo los conductores pueden actualizar su ubicación'
+            }, status=403)
+        
+        # Parsear datos JSON
+        data = json.loads(request.body)
+        latitud = data.get('latitud')
+        longitud = data.get('longitud')
+        precision = data.get('precision', 0)
+        timestamp = data.get('timestamp')
+        
+        # Validar datos requeridos
+        if not latitud or not longitud:
+            return JsonResponse({
+                'success': False,
+                'message': 'Latitud y longitud son requeridas'
+            }, status=400)
+        
+        # Desactivar ubicaciones anteriores del conductor
+        UbicacionCamion.objects.filter(
+            conductor=request.user,
+            activo=True
+        ).update(activo=False)
+        
+        # Crear nueva ubicación
+        ubicacion = UbicacionCamion.objects.create(
+            conductor=request.user,
+            latitud=latitud,
+            longitud=longitud,
+            senal_gps='Buena' if precision < 20 else 'Regular' if precision < 50 else 'Mala',
+            activo=True
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Ubicación guardada exitosamente',
+            'ubicacion_id': ubicacion.id,
+            'timestamp': ubicacion.timestamp.isoformat()
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'message': 'Datos JSON inválidos'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error interno: {str(e)}'
+        }, status=500)
+
+@login_required
+def api_conductor_info(request):
+    """
+    API para obtener la información del conductor conectado.
+    """
+    try:
+        # Verificar que el usuario sea conductor
+        if not hasattr(request.user, 'tipo_usuario') or request.user.tipo_usuario != 'conductor':
+            return JsonResponse({
+                'success': False,
+                'message': 'Solo los conductores pueden acceder a esta información'
+            }, status=403)
+        
+        # Obtener información del conductor
+        conductor_name = f"{request.user.first_name} {request.user.last_name}".strip()
+        if not conductor_name:
+            conductor_name = request.user.username
+        
+        return JsonResponse({
+            'success': True,
+            'conductor_name': conductor_name,
+            'conductor_id': request.user.id,
+            'email': request.user.email
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error interno: {str(e)}'
+        }, status=500)
+
 @solo_empresa
 @login_required
 def marcar_pendiente(request, pk):
@@ -674,3 +772,51 @@ def eliminar_despacho(request, pk):
         return redirect('clientes:detalle_cliente', pk=cliente.pk)
     return redirect('clientes:detalle_cliente', pk=cliente.pk)
 
+@empresa_o_conductor
+@login_required
+def ruta_camion(request):
+    """
+    Vista para mostrar la ruta del camión en tiempo real.
+    Solo accesible para usuarios empresa.
+    """
+    # Obtener la configuración de rastreo
+    configuracion = ConfiguracionRastreo.objects.filter(
+        empresa=request.user,
+        rastreo_activo=True
+    ).first()
+    
+    # Obtener la última ubicación del conductor asignado
+    ultima_ubicacion = None
+    if configuracion and configuracion.conductor_asignado:
+        ultima_ubicacion = UbicacionCamion.objects.filter(
+            conductor=configuracion.conductor_asignado,
+            activo=True
+        ).order_by('-timestamp').first()
+    
+    # Obtener despachos pendientes para el conductor
+    despachos_pendientes = []
+    if configuracion and configuracion.conductor_asignado:
+        despachos_pendientes = Despacho.objects.filter(
+            entregado=False
+        ).order_by('fecha')[:5]
+    
+    # Estadísticas del día
+    hoy = timezone.now().date()
+    despachos_hoy = Despacho.objects.filter(
+        fecha__date=hoy
+    ).count()
+    
+    despachos_completados = Despacho.objects.filter(
+        fecha__date=hoy,
+        entregado=True
+    ).count()
+    
+    context = {
+        'configuracion': configuracion,
+        'ultima_ubicacion': ultima_ubicacion,
+        'despachos_pendientes': despachos_pendientes,
+        'despachos_hoy': despachos_hoy,
+        'despachos_completados': despachos_completados,
+    }
+    
+    return render(request, 'clientes/ruta.html', context)

@@ -9,7 +9,7 @@ from .views import *
 app_name = 'clientes'
 
 urlpatterns = [
-    # Dashboard principal
+    # Dashboard principal (solo para usuarios logueados)
     path('', dashboard, name='dashboard'),
     # Lista de clientes
     path('lista/', ClienteListView.as_view(), name='lista_clientes'),
@@ -52,4 +52,10 @@ urlpatterns = [
     path('api/eliminar-despacho/<int:despacho_id>/', api_eliminar_despacho, name='api_eliminar_despacho'),
     # API: marcar despacho como entregado
     path('api/marcar-entregado/<int:despacho_id>/', api_marcar_entregado, name='api_marcar_entregado'),
+    # API: guardar ubicación del camión
+    path('api/guardar-ubicacion/', api_guardar_ubicacion, name='api_guardar_ubicacion'),
+    # API: información del conductor
+    path('api/conductor-info/', api_conductor_info, name='api_conductor_info'),
+    # Ruta del camión en tiempo real
+    path('ruta/', ruta_camion, name='ruta_camion'),
 ]

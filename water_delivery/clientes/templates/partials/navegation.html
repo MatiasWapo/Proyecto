@@ -2,7 +2,7 @@
 <nav class="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
-            
+            <!-- Logo -->
             <div class="flex items-center">
                 <div class="flex-shrink-0 flex items-center">
                     <i class="fas fa-tint text-2xl text-agua-blue mr-3"></i>
@@ -10,6 +10,7 @@
                 </div>
             </div>
 
+            <!-- Desktop Navigation -->
             <div class="hidden md:block">
                 <div class="ml-10 flex items-baseline space-x-4">
                     {% if user.is_authenticated and user.tipo_usuario == 'conductor' %}
@@ -17,6 +18,11 @@
                            class="nav-link {% if request.resolver_match.url_name == 'nuevo_despacho' %}active{% endif %}">
                             <i class="fas fa-truck mr-2"></i>
                             Despachos
+                        </a>
+                        <a href="{% url 'clientes:ruta_camion' %}"
+                           class="nav-link {% if request.resolver_match.url_name == 'ruta_camion' %}active{% endif %}">
+                            <i class="fas fa-map-marked-alt mr-2"></i>
+                            Mi Ruta
                         </a>
                     {% else %}
                         <a href="{% url 'clientes:lista_clientes' %}"
@@ -34,45 +40,52 @@
                             <i class="fas fa-history mr-2"></i>
                             Historial
                         </a>
+                        <a href="{% url 'clientes:ruta_camion' %}"
+                           class="nav-link {% if request.resolver_match.url_name == 'ruta_camion' %}active{% endif %}">
+                            <i class="fas fa-map-marked-alt mr-2"></i>
+                            Ruta
+                        </a>
                     {% endif %}
                 </div>
             </div>
 
+            <!-- User Menu & Mobile Button -->
             <div class="flex items-center space-x-4">
                 {% if user.is_authenticated %}
-                <div class="hidden md:block relative group">
-                    <button class="user-menu-button flex items-center text-sm rounded-full text-gray-700 hover:text-agua-blue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-agua-blue transition-colors duration-200">
-                        <i class="fas fa-user-circle text-lg mr-2"></i>
-                        <span class="font-medium">{{ user.username }}</span>
-                        <i class="fas fa-chevron-down ml-2 text-xs"></i>
-                    </button>
-                    
-                    <div class="user-dropdown absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right">
-                        <a href="#" class="dropdown-item">
-                            <i class="fas fa-user mr-2"></i>
-                            Mi perfil
-                        </a>
-                        <div class="border-t border-gray-100 my-1"></div>
-                        <form method="post" action="{% url 'usuarios:logout' %}" style="display: inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="dropdown-item text-red-600 hover:bg-red-50 w-full text-left border-0 bg-transparent">
-                                <i class="fas fa-sign-out-alt mr-2"></i>
-                                Cerrar sesión
-                            </button>
-                        </form>
+                    <div class="hidden md:block relative group">
+                        <button class="user-menu-button flex items-center text-sm rounded-full text-gray-700 hover:text-agua-blue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-agua-blue transition-colors duration-200">
+                            <i class="fas fa-user-circle text-lg mr-2"></i>
+                            <span class="font-medium">{{ user.username }}</span>
+                            <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                        </button>
+                        
+                        <div class="user-dropdown absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right">
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-user mr-2"></i>
+                                Mi perfil
+                            </a>
+                            <div class="border-t border-gray-100 my-1"></div>
+                            <form method="post" action="{% url 'usuarios:logout' %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item text-red-600 hover:bg-red-50 w-full text-left border-0 bg-transparent">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>
+                                    Cerrar sesión
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                </div>
                 {% else %}
-                <div class="hidden md:block">
-                    <a href="{% url 'usuarios:login' %}" class="nav-link">
-                        <i class="fas fa-sign-in-alt mr-2"></i>
-                        Iniciar sesión
-                    </a>
-                </div>
+                    <div class="hidden md:block">
+                        <a href="{% url 'usuarios:login' %}" class="nav-link">
+                            <i class="fas fa-sign-in-alt mr-2"></i>
+                            Iniciar sesión
+                        </a>
+                    </div>
                 {% endif %}
 
+                <!-- Mobile menu button -->
                 <div class="md:hidden">
-                    <button type="button" 
+                    <button type="button"
                             class="mobile-menu-button inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-agua-blue transition-colors duration-200"
                             aria-controls="mobile-menu" 
                             aria-expanded="false">
@@ -85,58 +98,114 @@
         </div>
     </div>
 
+    <!-- Mobile Menu - Optimizado para layout vertical -->
     <div class="mobile-menu md:hidden hidden" id="mobile-menu">
-        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50 border-t border-gray-200">
-            {% if user.is_authenticated and user.tipo_usuario == 'conductor' %}
-                <a href="{% url 'clientes:nuevo_despacho' %}"
-                   class="mobile-nav-link {% if request.resolver_match.url_name == 'nuevo_despacho' %}active{% endif %}">
-                    <i class="fas fa-truck mr-3"></i>
-                    Despachos
-                </a>
-            {% else %}
-                <a href="{% url 'clientes:lista_clientes' %}"
-                   class="mobile-nav-link {% if request.resolver_match.url_name == 'lista_clientes' %}active{% endif %}">
-                    <i class="fas fa-users mr-3"></i>
-                    Todos los Clientes
-                </a>
-                <a href="{% url 'clientes:nuevo_despacho' %}"
-                   class="mobile-nav-link {% if request.resolver_match.url_name == 'nuevo_despacho' %}active{% endif %}">
-                    <i class="fas fa-truck mr-3"></i>
-                    Despachos
-                </a>
-                <a href="{% url 'clientes:historial_despachos' %}"
-                   class="mobile-nav-link {% if request.resolver_match.url_name == 'historial_despachos' %}active{% endif %}">
-                    <i class="fas fa-history mr-3"></i>
-                    Historial
-                </a>
-            {% endif %}
-
-            <div class="border-t border-gray-300 pt-3 mt-3">
-                {% if user.is_authenticated %}
-                    <div class="px-3 py-2">
-                        <p class="text-sm font-medium text-gray-700 flex items-center">
-                            <i class="fas fa-user-circle mr-2"></i>
-                            {{ user.username }}
-                        </p>
+        <div class="bg-gradient-to-b from-agua-blue to-agua-dark text-white min-h-screen">
+            <!-- Header del menú móvil -->
+            <div class="px-6 py-8 border-b border-white/20">
+                <div class="flex items-center space-x-4">
+                    <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user-circle text-3xl text-white"></i>
                     </div>
-                    <a href="#" class="mobile-nav-link">
-                        <i class="fas fa-user mr-3"></i>
-                        Mi perfil
-                    </a>
-                    <form method="post" action="{% url 'usuarios:logout' %}" style="display: inline; width: 100%;">
-                        {% csrf_token %}
-                        <button type="submit" class="mobile-nav-link text-red-600 w-full text-left border-0 bg-transparent">
-                            <i class="fas fa-sign-out-alt mr-3"></i>
-                            Cerrar sesión
-                        </button>
-                    </form>
-                {% else %}
-                    <a href="{% url 'usuarios:login' %}" class="mobile-nav-link">
-                        <i class="fas fa-sign-in-alt mr-3"></i>
-                        Iniciar sesión
-                    </a>
-                {% endif %}
+                    <div>
+                        <p class="text-xl font-semibold text-white">{{ user.username }}</p>
+                        <p class="text-sm opacity-80 text-white/80">{{ user.tipo_usuario|title }}</p>
+                    </div>
+                </div>
             </div>
+
+            <!-- Navegación principal - Botones verticales -->
+            <div class="px-4 py-6">
+                <div class="space-y-2">
+                    {% if user.is_authenticated and user.tipo_usuario == 'conductor' %}
+                        <a href="{% url 'clientes:nuevo_despacho' %}"
+                           class="mobile-nav-item {% if request.resolver_match.url_name == 'nuevo_despacho' %}active{% endif %}">
+                            <div class="flex items-center w-full">
+                                <div class="flex items-center justify-center w-12 h-12 mr-4">
+                                    <i class="fas fa-truck text-xl"></i>
+                                </div>
+                                <span class="text-lg font-medium">Despachos</span>
+                            </div>
+                        </a>
+                        
+                        <a href="{% url 'clientes:ruta_camion' %}"
+                           class="mobile-nav-item {% if request.resolver_match.url_name == 'ruta_camion' %}active{% endif %}">
+                            <div class="flex items-center w-full">
+                                <div class="flex items-center justify-center w-12 h-12 mr-4">
+                                    <i class="fas fa-map-marked-alt text-xl"></i>
+                                </div>
+                                <span class="text-lg font-medium">Mi Ruta</span>
+                            </div>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'clientes:lista_clientes' %}"
+                           class="mobile-nav-item {% if request.resolver_match.url_name == 'lista_clientes' %}active{% endif %}">
+                            <div class="flex items-center w-full">
+                                <div class="flex items-center justify-center w-12 h-12 mr-4">
+                                    <i class="fas fa-users text-xl"></i>
+                                </div>
+                                <span class="text-lg font-medium">Todos los Clientes</span>
+                            </div>
+                        </a>
+                        
+                        <a href="{% url 'clientes:nuevo_despacho' %}"
+                           class="mobile-nav-item {% if request.resolver_match.url_name == 'nuevo_despacho' %}active{% endif %}">
+                            <div class="flex items-center w-full">
+                                <div class="flex items-center justify-center w-12 h-12 mr-4">
+                                    <i class="fas fa-truck text-xl"></i>
+                                </div>
+                                <span class="text-lg font-medium">Despachos</span>
+                            </div>
+                        </a>
+                        
+                        <a href="{% url 'clientes:historial_despachos' %}"
+                           class="mobile-nav-item {% if request.resolver_match.url_name == 'historial_despachos' %}active{% endif %}">
+                            <div class="flex items-center w-full">
+                                <div class="flex items-center justify-center w-12 h-12 mr-4">
+                                    <i class="fas fa-history text-xl"></i>
+                                </div>
+                                <span class="text-lg font-medium">Historial</span>
+                            </div>
+                        </a>
+                        
+                        <a href="{% url 'clientes:ruta_camion' %}"
+                           class="mobile-nav-item {% if request.resolver_match.url_name == 'ruta_camion' %}active{% endif %}">
+                            <div class="flex items-center w-full">
+                                <div class="flex items-center justify-center w-12 h-12 mr-4">
+                                    <i class="fas fa-map-marked-alt text-xl"></i>
+                                </div>
+                                <span class="text-lg font-medium">Ruta</span>
+                            </div>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+                         <!-- Sección de usuario - Botones verticales -->
+             <div class="px-4 py-4 border-t border-white/20 mt-6">
+                 <div class="space-y-2">
+                     <a href="#" class="mobile-nav-item">
+                         <div class="flex items-center w-full">
+                             <div class="flex items-center justify-center w-12 h-12 mr-4">
+                                 <i class="fas fa-user text-xl"></i>
+                             </div>
+                             <span class="text-lg font-medium">Mi perfil</span>
+                         </div>
+                     </a>
+                     
+                     <form method="post" action="{% url 'usuarios:logout' %}" class="w-full">
+                         {% csrf_token %}
+                         <button type="submit" class="mobile-nav-item text-red-300 hover:text-red-100 hover:bg-red-500/20 w-full border-0 bg-transparent text-left">
+                             <div class="flex items-center w-full">
+                                 <div class="flex items-center justify-center w-12 h-12 mr-4">
+                                     <i class="fas fa-sign-out-alt text-xl"></i>
+                                 </div>
+                                 <span class="text-lg font-medium">Cerrar sesión</span>
+                             </div>
+                         </button>
+                     </form>
+                 </div>
+             </div>
         </div>
     </div>
 </nav>
@@ -150,12 +219,20 @@
         @apply bg-agua-blue text-white shadow-sm;
     }
     
-    .mobile-nav-link {
-        @apply text-gray-600 hover:bg-gray-200 hover:text-agua-blue block px-3 py-2 rounded-md text-base font-medium flex items-center transition-all duration-200;
+    /* Nuevos estilos para botones móviles verticales */
+    .mobile-nav-item {
+        @apply text-white hover:bg-white/20 block px-4 py-4 rounded-xl text-base font-medium transition-all duration-200 w-full;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
     }
     
-    .mobile-nav-link.active {
-        @apply bg-agua-blue text-white;
+    .mobile-nav-item.active {
+        @apply bg-white/30 text-white shadow-lg;
+    }
+    
+    .mobile-nav-item:hover {
+        @apply bg-white/20 transform scale-105;
     }
     
     .dropdown-item {
@@ -164,6 +241,21 @@
     
     .user-dropdown {
         @apply transition-all duration-200 transform;
+    }
+    
+    /* Animación para el menú móvil */
+    .mobile-menu {
+        transform: translateY(-100%);
+        transition: transform 0.3s ease-in-out;
+    }
+    
+    .mobile-menu:not(.hidden) {
+        transform: translateY(0);
+    }
+    
+    /* Asegurar que los iconos estén alineados */
+    .mobile-nav-item i {
+        flex-shrink: 0;
     }
 </style>
 
@@ -183,16 +275,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 menuIcon.classList.add('hidden');
                 closeIcon.classList.remove('hidden');
                 mobileMenuButton.setAttribute('aria-expanded', 'true');
+                                 // No bloquear el scroll del body
+                 // document.body.style.overflow = 'hidden';
             } else {
                 mobileMenu.classList.add('hidden');
                 menuIcon.classList.remove('hidden');
                 closeIcon.classList.add('hidden');
                 mobileMenuButton.setAttribute('aria-expanded', 'false');
+                                 // No restaurar scroll del body
+                 // document.body.style.overflow = 'auto';
             }
         });
     }
     
-    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+    // Cerrar menú al hacer click en un enlace
+    const mobileNavLinks = document.querySelectorAll('.mobile-nav-item');
     mobileNavLinks.forEach(link => {
         link.addEventListener('click', function() {
             if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
@@ -200,10 +297,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 menuIcon.classList.remove('hidden');
                 closeIcon.classList.add('hidden');
                 mobileMenuButton.setAttribute('aria-expanded', 'false');
+                                 // document.body.style.overflow = 'auto';
             }
         });
     });
     
+    // Menú de usuario desktop
     const userMenuButton = document.querySelector('.user-menu-button');
     const userDropdown = document.querySelector('.user-dropdown');
     
