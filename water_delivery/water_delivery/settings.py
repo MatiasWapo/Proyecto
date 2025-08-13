@@ -79,7 +79,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'usuarios.middleware.LoginRequiredMiddleware',
+    # Middleware de seguridad para acceso privado (solo en producción)
+    'water_delivery.security.IPRestrictionMiddleware' if not DEBUG else None,
 ]
+MIDDLEWARE = [m for m in MIDDLEWARE if m is not None]
 
 ROOT_URLCONF = 'water_delivery.urls'
 
@@ -108,16 +111,32 @@ WSGI_APPLICATION = 'water_delivery.wsgi.application'
 # Base de datos
 # =====================
 # Database
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "water_delivery_db",
-        "USER": "postgres",
-        "PASSWORD": "matias123",
-        "HOST": "127.0.0.1",
-        "PORT": "5432",
+import dj_database_url
+
+# Configuración de base de datos
+# Si existe DATABASE_URL (para Railway), la usa; si no, usa PostgreSQL local
+DATABASE_URL = config('DATABASE_URL', default=None)
+
+if DATABASE_URL:
+    # Configuración para Railway/Producción
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600
+        )
     }
-}
+else:
+    # Configuración para desarrollo local con PostgreSQL
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_NAME', default='water_delivery_db'),
+            'USER': config('DB_USER', default='postgres'),
+            'PASSWORD': config('DB_PASSWORD', default='matias123'),
+            'HOST': config('DB_HOST', default='127.0.0.1'),
+            'PORT': config('DB_PORT', default='5432'),
+        }
+    }
 
 # =====================
 # Validación de contraseñas
@@ -175,6 +194,6 @@ DEFAULT_FROM_EMAIL = 'matiasmartimez15@gmail.com'  # Debe coincidir con EMAIL_HO
 PASSWORD_RESET_TIMEOUT = 86400  # 24 horas en segundos para expiración del token
 
 # Security recommendations (para cuando DEBUG=False)
-SESSION_COOKIE_SECURE = False  # Cambiar a True en producción
-CSRF_COOKIE_SECURE = False     # Cambiar a True en producción
-SECURE_SSL_REDIRECT = False    # Cambiar a True en producción
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=False, cast=bool)
+CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=False, cast=bool)
+SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=False, cast=bool)

@@ -62,16 +62,6 @@ class Usuario(AbstractUser):
         blank=True,
         verbose_name="Camión asignado"
     )  # Camión asignado al conductor (opcional)
-    
-    # Campos críticos con valores por defecto
-    password = models.CharField(max_length=128, default='', verbose_name='password')
-    last_login = models.DateTimeField(null=True, blank=True, default=timezone.now)
-    is_active = models.BooleanField(default=True)
-    
-    # Asegura que estos campos no sean nulos
-    email = models.EmailField(verbose_name="Correo electrónico", unique=True, blank=False, default='')
-    direccion = models.TextField(verbose_name="Dirección completa", default="Sin dirección registrada")
-    telefono = models.CharField(max_length=20, verbose_name="Teléfono de contacto", default="0000000000")
 
     class Meta:
         verbose_name = "Usuario del sistema"

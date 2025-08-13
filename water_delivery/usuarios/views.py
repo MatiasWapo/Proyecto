@@ -11,7 +11,7 @@ from django.urls import reverse_lazy, reverse
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
-from .forms import CustomUserCreationForm, RecuperacionForm, PreguntasSeguridadForm, EmailForm, ResetPasswordForm
+from .forms import CustomUserCreationForm, RecuperacionForm, EmailForm, ResetPasswordForm, CustomLoginForm
 from .models import Usuario
 from django.core.mail import send_mail
 from django.utils import timezone
@@ -29,6 +29,7 @@ class CustomLoginView(LoginView):
     Redirige según el tipo de usuario (empresa o conductor) tras iniciar sesión.
     """
     template_name = 'usuarios/login.html'
+    form_class = CustomLoginForm
     
     def get_success_url(self):
         """
