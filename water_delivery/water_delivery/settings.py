@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'crispy_forms',
     'crispy_bootstrap5',
     'clientes',
@@ -71,6 +72,7 @@ LOGOUT_REDIRECT_URL = 'usuarios:login'
 # Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # CORS debe ir lo más arriba posible
     'whitenoise.middleware.WhiteNoiseMiddleware',  # Para servir archivos estáticos
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -81,6 +83,8 @@ MIDDLEWARE = [
     'usuarios.middleware.LoginRequiredMiddleware',
     # Middleware de seguridad para acceso privado (solo en producción)
     'water_delivery.security.IPRestrictionMiddleware' if not DEBUG else None,
+    # Middleware de control por dispositivo basado en base de datos
+    'usuarios.middleware.DeviceDBMiddleware',
 ]
 MIDDLEWARE = [m for m in MIDDLEWARE if m is not None]
 
@@ -176,6 +180,14 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# =====================
+# CORS
+# =====================
+# Configuración de CORS para permitir frontends externos si aplica
+CORS_ALLOWED_ORIGINS = [o for o in config('CORS_ALLOWED_ORIGINS', default='').split(',') if o]
+CORS_ALLOW_CREDENTIALS = True
 
 # Default primary key
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -183,17 +195,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # =====================
 # Email y seguridad
 # =====================
-# Email Configuration (Development)
+# Email Configuration (Development/Production)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'matiasmartimez15@gmail.com'  # Cambiar por tu email real
-EMAIL_HOST_PASSWORD = 'cezh kyul uxeo nnij'  # Usar contraseña de aplicación
-DEFAULT_FROM_EMAIL = 'matiasmartimez15@gmail.com'  # Debe coincidir con EMAIL_HOST_USER
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=EMAIL_HOST_USER)
 PASSWORD_RESET_TIMEOUT = 86400  # 24 horas en segundos para expiración del token
 
 # Security recommendations (para cuando DEBUG=False)
 SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=False, cast=bool)
 CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=False, cast=bool)
 SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=False, cast=bool)
+CSRF_TRUSTED_ORIGINS = [o for o in config('CSRF_TRUSTED_ORIGINS', default='').split(',') if o]
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True

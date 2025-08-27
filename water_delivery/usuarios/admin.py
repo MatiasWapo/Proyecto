@@ -6,7 +6,7 @@
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import Usuario
+from .models import Usuario, Device
 
 class UsuarioAdmin(UserAdmin):
     # Lista de campos a mostrar en la tabla principal
@@ -35,3 +35,10 @@ class UsuarioAdmin(UserAdmin):
 
 # Registro del modelo Usuario en el admin
 admin.site.register(Usuario, UsuarioAdmin)
+
+@admin.register(Device)
+class DeviceAdmin(admin.ModelAdmin):
+    list_display = ('name', 'active', 'last_seen', 'created_at')
+    list_filter = ('active',)
+    search_fields = ('name', 'token')
+    readonly_fields = ('token', 'last_seen', 'created_at')

@@ -4,6 +4,7 @@
 # Este archivo maneja la seguridad para acceso empresarial privado
 
 import os
+import logging
 from decouple import config
 from django.http import HttpResponseForbidden
 from django.conf import settings
@@ -120,18 +121,17 @@ SECURITY_LOGGING = {
         },
     },
     'handlers': {
-        'security_file': {
+        'security_console': {
             'level': 'WARNING',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(settings.BASE_DIR, 'logs', 'security.log'),
+            'class': 'logging.StreamHandler',
             'formatter': 'security',
         },
     },
     'loggers': {
         'security': {
-            'handlers': ['security_file'],
+            'handlers': ['security_console'],
             'level': 'WARNING',
             'propagate': False,
         },
     },
-} 
+}
