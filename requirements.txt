@@ -1,6 +1,8 @@
 # Requisitos del proyecto Water Delivery (raíz)
 # Referencia: water_delivery/requirements.txt
 
+setuptools>=65.5.1
+
 Django==4.2.7
 django-crispy-forms==2.1
 crispy-bootstrap5==0.7
