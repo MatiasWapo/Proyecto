@@ -18,6 +18,7 @@
 from pathlib import Path
 import os 
 from decouple import config
+from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -118,29 +119,39 @@ WSGI_APPLICATION = 'water_delivery.wsgi.application'
 import dj_database_url
 
 # Configuración de base de datos
-# Si existe DATABASE_URL (para Railway), la usa; si no, usa PostgreSQL local
-DATABASE_URL = config('DATABASE_URL', default=None)
+# Si existe DATABASE_URL/RAILWAY_DATABASE_URL/POSTGRES_URL (para Railway), la usa; si no, usa PostgreSQL local
+DATABASE_URL = config('DATABASE_URL', default=None) or \
+               config('RAILWAY_DATABASE_URL', default=None) or \
+               config('POSTGRES_URL', default=None)
 
-if DATABASE_URL:
-    # Configuración para Railway/Producción
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=DATABASE_URL,
-            conn_max_age=600
-        )
-    }
-else:
-    # Configuración para desarrollo local con PostgreSQL
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('DB_NAME', default='water_delivery_db'),
-            'USER': config('DB_USER', default='postgres'),
-            'PASSWORD': config('DB_PASSWORD', default='matias123'),
-            'HOST': config('DB_HOST', default='127.0.0.1'),
-            'PORT': config('DB_PORT', default='5432'),
+def _ensure_sslmode(url: str) -> str:
+    try:
+        parsed = urlparse(url)
+        # Solo aplicar para postgres
+        if parsed.scheme.startswith('postgres'):
+            query = dict(parse_qsl(parsed.query))
+            if 'sslmode' not in query:
+                query['sslmode'] = 'require'
+                new_query = urlencode(query)
+                return urlunparse(parsed._replace(query=new_query))
+    except Exception:
+        pass
+    return url
+
+# Configuración de la base de datos de Railway
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'railway',
+        'USER': 'postgres',
+        'PASSWORD': 'NQPNVlQeOjPkjHefypMkzBOeuwGvrQnq',
+        'HOST': 'maglev.proxy.rlwy.net',
+        'PORT': '17367',
+        'OPTIONS': {
+            'sslmode': 'require'
         }
     }
+}
 
 # =====================
 # Validación de contraseñas
